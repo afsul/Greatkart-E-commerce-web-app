@@ -1,0 +1,73 @@
+{% extends 'admin/admin-base.html' %}
+{% load static %}
+{% block content %}
+ 
+<head>
+    
+    <title>Add Product</title>
+   
+</head>
+    
+         <!-- ============================================================== -->
+     
+        <!-- ============================================================== -->
+        <!-- ============================================================== -->
+        <!-- wrapper  -->
+        <!-- ============================================================== -->
+        
+            <div class="container-fluid  dashboard-content">
+                <!-- ============================================================== -->
+                <!-- pageheader -->
+                <!-- ============================================================== -->
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                        <div class="page-header">
+                            <h2 class="pageheader-title">Add Product</h2>
+                            <p class="pageheader-text"></p>
+                            <div class="page-breadcrumb">
+                                <nav aria-label="breadcrumb">
+                                    <ol class="breadcrumb">
+                                        <li class="breadcrumb-item"><a href="#" class="breadcrumb-link">Dashboard</a></li>
+                                        <li class="breadcrumb-item"><a href="#" class="breadcrumb-link">Category</a></li>
+                                        <li class="breadcrumb-item active" aria-current="page">Add Product</li>
+                                    </ol>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- ============================================================== -->
+                <!-- end pageheader -->
+                <!-- ============================================================== -->
+                <div class="row">
+                    <!-- ============================================================== -->
+                    <!-- hoverable table -->
+                        <!-- ============================================================== -->
+                       
+                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <form method="POST" action="add_product" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        {{ forms }}
+                                   
+                                    <div class="form-group col-lg-8 mt-3 ">
+                                    <button type="submit" class="btn btn-success">Add</button>
+                                </div>
+                            </form>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- ============================================================== -->
+                        <!-- end hoverable table -->
+                    <!-- ============================================================== -->
+                </div>
+        
+       
+    
+    <!-- ============================================================== -->
+    <!-- end main wrapper -->
+    <!-- ============================================================== -->
+    
+    
+    {% endblock %}
