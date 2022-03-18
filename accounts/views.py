@@ -1,10 +1,16 @@
 # from email.message import EmailMessage
+import os
 from django.contrib import messages,auth
 # from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
+from twilio.rest import Client
 from accounts.models import Account
+from carts.models import Cart, CartItem
+from carts.views import _cart_id
 from .forms import RegistrationfForm
+import requests
+from .private import TWILIO_SERVICE_SID,TWILIO_ACCOUNT_SID,TWILIO_AUTH_TOKEN
 
 # #Vefication email
 # from django.contrib.sites.shortcuts import get_current_site
@@ -28,8 +34,7 @@ def register(request):
             password = form.cleaned_data['password']
 
             username = email.split("@")[0]
-            user = Account.objects.create_user(first_name=first_name, last_name=last_name, email=email, username=username, password=password)
-            user.phone_number = phone_number
+            user = Account.objects.create_user(first_name=first_name, last_name=last_name, email=email, username=username, password=password, phone_number=phone_number)
             user.save()
 
             # #USER ACTIVATION
@@ -44,16 +49,69 @@ def register(request):
             # to_email =email
             # send_email = EmailMessage(mail_subject, message, to=[to_email])
             # send_email.send()
-            messages.success(request, 'Registration succesfull.')
-            return redirect('register')
+
+            # otp account varification
+
+            request.session["mobile"] = phone_number
+            user = Account.objects.filter(phone_number=phone_number)
+
+            for m in user:
+                if m.phone_number == phone_number:
+                    user_mobile = "+91" + phone_number
+
+                    # Your Account Sid and Auth Token from twilio.com / console
+                    account_sid = TWILIO_ACCOUNT_SID
+                    auth_token = TWILIO_AUTH_TOKEN
+                    client = Client(account_sid, auth_token)
+                    verification = client.verify.services(TWILIO_SERVICE_SID).verifications.create(to=user_mobile, channel="sms")
+
+                    print(verification.status)
+                    return redirect("new_user_otp_varification")
     else:
         form = RegistrationfForm()
     context = {
-        'form': form,
+        "form": form,
     }
+    return render(request, "accounts/register.html", context)
 
 
-    return render(request, 'accounts/register.html', context)
+def new_user_otp_varification(request):
+    if request.method == "POST":
+        otp = request.POST["otp"]
+        mobile = request.session["mobile"]
+        user_mobile = "+91" + mobile
+
+        # twilio code for otp generation
+        account_sid = TWILIO_ACCOUNT_SID
+        auth_token = TWILIO_AUTH_TOKEN
+        client = Client(account_sid, auth_token)
+
+        verification_check = client.verify \
+                           .services(TWILIO_SERVICE_SID) \
+                           .verification_checks \
+                           .create(to=user_mobile, code=otp)
+        print(verification_check.status)
+
+        # checking otp is valid or not. If valid redirect home
+        if verification_check.status == "approved":
+            messages.success(request, "OTP verified successfully.")
+            user = Account.objects.get(phone_number=mobile)  # user details
+            user.is_active = True
+            user.save()
+            auth.login(request, user)
+            return redirect("home")
+            # try: 
+            #     del request.session["mobile"]
+            # except:
+            #     pass
+
+            # return redirect("home")
+        else:
+            messages.error(request, "Invalid OTP")
+            return render(request, "accounts/new_user_otp_page.html")
+    else:
+        return render(request, "accounts/new_user_otp_page.html")
+
     
 def login(request):
   if  request.session.get('user_login'):
@@ -67,10 +125,31 @@ def login(request):
             user = auth.authenticate(email=email, password=password)
 
             if user is not None:
+                try:
+                    cart = Cart.objects.get(cart_id=_cart_id(request))
+                    is_cart_item_exists = CartItem.objects.filter(cart=cart).exists()
+                    if is_cart_item_exists:
+                        cart_item = CartItem.objects.filter(cart=cart)
+
+                        for item in cart_item:
+                            item.user = user
+                            item.save()
+                except:
+                    pass
+  
                 auth.login(request, user)
                 request.session['user_login'] = 'user_signin' 
-                # messages.success(request, "You are now logged in.")
-                return redirect('home')
+                messages.success(request, "You are now logged in.")
+                url = request.META.get('HTTP_REFERER')
+                try:
+                    query = requests.utils.urlparse(url).query
+                    # next/cart/checkout/
+                    params = dict(x.split('=') for x in query.split('&'))
+                    if 'next' in params:
+                        nextPage = params['next']
+                        return redirect(nextPage)
+                except:
+                    return redirect('home')
             else:
                 messages.error(request, 'Invalid login credentials')
                 return redirect('login')

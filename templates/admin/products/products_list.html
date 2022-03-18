@@ -1,0 +1,98 @@
+{% extends 'admin/admin-base.html' %}
+{% load static %}
+{% block content %}
+ 
+<head>
+    
+    <title>Products List</title>
+   
+</head>
+    
+         <!-- ============================================================== -->
+     
+        <!-- ============================================================== -->
+        <!-- ============================================================== -->
+        <!-- wrapper  -->
+        <!-- ============================================================== -->
+        
+            <div class="container-fluid  dashboard-content">
+                <!-- ============================================================== -->
+                <!-- pageheader -->
+                <!-- ============================================================== -->
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                        <div class="page-header">
+                            <h2 class="pageheader-title">Products List</h2>
+                            <p class="pageheader-text"></p>
+                            <div class="page-breadcrumb">
+                                <nav aria-label="breadcrumb">
+                                    <ol class="breadcrumb">
+                                        <li class="breadcrumb-item"><a href="#" class="breadcrumb-link">Dashboard</a></li>
+                                        <li class="breadcrumb-item"><a href="#" class="breadcrumb-link">Products</a></li>
+                                        <li class="breadcrumb-item active" aria-current="page">Products List</li>
+                                    </ol>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- ============================================================== -->
+                <!-- end pageheader -->
+                <!-- ============================================================== -->
+                <div class="row">
+                    <!-- ============================================================== -->
+                    <!-- hoverable table -->
+                        <!-- ============================================================== -->
+                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                            <div class="card">
+                                <h5 class="card-header">Products</h5>
+                                <div class="card-body">
+                                    <a href="{% url 'add_product' %}" class="btn btn-primary mb-3">Add</a>
+                                    <table class="table table-hover">
+                                        <thead>
+                                           
+                                            <tr>
+                                               
+                                                <th scope="col"> Products Image</th>
+                                                <th scope="col"> Products Name</th>
+                                                <th scope="col">Category</th>
+                                                <th scope="col">Price</th>
+                                                <th scope="col">Stock</th>
+                                                <th scope="col">Action </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in product %}
+                                            <tr>
+                                                <td><img src="{{item.images.url}}" style="width: 75px; height: 75px;"></td>
+                                                <td>{{item.product_name}}</td>
+                                                <td>{{item.category}}</td>
+                                                
+                                                <td>$ {{item.price}}</td>
+                                                <td>{{item.stock}}</td>
+                                                
+                                                <td><a href="{% url 'product_delete' item.id %}" onclick="return confirm('Are you sure you want to delete this item ?')"><i class=" fas fa-trash-alt
+                                                    "></a></i>
+                                                    <a href="{% url 'edit_product' item.id %}"><i class=" fas fa-edit ml-3"></i></a>
+                                                </td>
+                                            </tr>   
+                                            {% endfor %}
+                                           
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- ============================================================== -->
+                        <!-- end hoverable table -->
+                    <!-- ============================================================== -->
+                </div>
+        
+       
+    
+    <!-- ============================================================== -->
+    <!-- end main wrapper -->
+    <!-- ============================================================== -->
+    
+    
+    {% endblock %}

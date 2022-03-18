@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'new-admin',
     'store.apps.StoreConfig',
     'carts.apps.CartsConfig',
+    'orders',
 ]
 
 MIDDLEWARE = [
