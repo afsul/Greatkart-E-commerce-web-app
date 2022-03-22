@@ -1,12 +1,16 @@
 import datetime
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import redirect, render
 from carts.models import CartItem
+from greatkart import settings
+from greatkart.settings import RAZORPAY_API_KEY, RAZORPAY_API_SECRET_KEY
 from orders.models import Order, OrderProduct, Payment
 from store.models import Product
 from .forms import OrderForm
 import datetime
 import json
+import razorpay
+from django.views.decorators.csrf import csrf_exempt
 # Create your views here.
 
 def place_order(request, total=0, quantity=0,):
@@ -89,7 +93,7 @@ def payments(request):
     order.is_ordered = True
     order.save()
 
-    #Move the cart items to Order Product taable.
+    #Move the cart items to Order Product table.
     cart_items = CartItem.objects.filter(user=request.user)
 
     for item in cart_items:
@@ -104,23 +108,91 @@ def payments(request):
         orderproduct.save()
 
 
-        cart_item = CartItem.objects.get(id=item.id)
-        product_variation = cart_item.variations.all()
-        orderproduct = OrderProduct.objects.get(id=orderproduct.id)
-        orderproduct.variations.set(product_variation)
-        orderproduct.save()
-
-
         # Reduce the quantity of the sold products
         product = Product.objects.get(id=item.product_id)
         product.stock -= item.quantity
         product.save()
+
+
     # Clear cart
     CartItem.objects.filter(user=request.user).delete()
+     # send order number and  transaction backto send data method via json Response
+    data = {
+            'order_number': order.order_number,
+            'transID': payment.payment_id,
+        }
+    return JsonResponse(data)
+
+
+
+#COD
+def cod_order_complete(request,order_number):
+    order_number = order_number
+    order = Order.objects.filter(user = request.user, is_ordered = False)
     
+    try:
+        order = Order.objects.get(user = request.user, is_ordered = False, order_number = order_number)
+        payment = Payment(
+            user = request.user,
+            payment_id = "COD - Payement pending",  
+            payment_method = "COD",
+            amount_paid = order.order_total,
+            status = "COD",
+            )
+        payment.save()
+        order.payment= payment 
+        order.is_ordered = True
+        order.save()
 
-    return render(request, 'orders/payments.html')
+        cart_items = CartItem.objects.filter(user = request.user)
+        for item in cart_items:
+            orderproduct = OrderProduct()
+            orderproduct.order_id = order.id
+            orderproduct.payment = payment
+            orderproduct.user_id = request.user.id
+            orderproduct.product_id = item.product_id
+            orderproduct.quantity = item.quantity
+            orderproduct.product_price = item.product.price
+            orderproduct.ordered = True
+            orderproduct.save()
 
+            # cart_item = CartItem.objects.get(id = item.id)
+            # product_variation = cart_item.variations.all()
+            # orderproduct = OrderProduct.objects.get(id=orderproduct.id)
+            # orderproduct.variations.set(product_variation)
+            # orderproduct.save()
+
+            product = Product.objects.get(id=item.product_id)
+            product.stock -= item.quantity
+            product.save()
+
+        CartItem.objects.filter(user=request.user).delete()
+        
+
+        order = Order.objects.get(order_number=order_number, is_ordered=True)
+        ordered_products = OrderProduct.objects.filter(order_id=order.id)
+        subtotal = 0
+        for i in ordered_products:
+            subtotal = subtotal + i.product_price * i.quantity
+
+        tax = (subtotal * 5)/100
+        grandtotal = subtotal + tax   
+        payment = "Cash On Delivery"
+        context = {
+            'order' : order,
+            'ordered_products' : ordered_products,
+            'order_number': order.order_number,
+            'payment':payment,
+            'subtotal':subtotal,
+            'tax':tax,
+            'grandtotal':grandtotal,
+        }
+        return render(request, 'orders/order_complete.html' , context)
+    
+    except(Order.DoesNotExist):
+        return redirect('home')
+
+      
 def order_complete(request):
     order_number = request.GET.get('order_number')
     transID = request.GET.get('payment_id')
@@ -151,6 +223,18 @@ def order_complete(request):
     except(Payment.DoesNotExist, Order.DoesNotExist):
         return redirect('home')                        
 
+def cancel_order(request, order_number):
+    order = Order.objects.get(user = request.user, order_number = order_number)
+    
+    if request.method == "POST":
+        status = request.POST['cancel_order']
+        order_number.status = status
+        order.save()   
+        print('order cancelled')
+    
+    return redirect('my_orders')
 
+    
             
+
 

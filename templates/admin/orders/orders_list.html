@@ -1,0 +1,91 @@
+{% extends 'admin/admin-base.html' %}
+{% load static %}
+{% block content %}
+ 
+<head>
+    
+    <title>Products List</title>
+   
+</head>
+    
+         <!-- ============================================================== -->
+     
+        <!-- ============================================================== -->
+        <!-- ============================================================== -->
+        <!-- wrapper  -->
+        <!-- ============================================================== -->
+        
+            <div class="container-fluid  dashboard-content">
+                <!-- ============================================================== -->
+                <!-- pageheader -->
+                <!-- ============================================================== -->
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                        <div class="page-header">
+                            <h2 class="pageheader-title">Orders List</h2>
+                            <p class="pageheader-text"></p>
+                            <div class="page-breadcrumb">
+                                <nav aria-label="breadcrumb">
+                                    <ol class="breadcrumb">
+                                        <li class="breadcrumb-item"><a href="#" class="breadcrumb-link">Dashboard</a></li>
+                                        <li class="breadcrumb-item"><a href="#" class="breadcrumb-link">Orders</a></li>
+                                        <li class="breadcrumb-item active" aria-current="page">Orders List</li>
+                                    </ol>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- ============================================================== -->
+                <!-- end pageheader -->
+                <!-- ============================================================== -->
+                <div class="row">
+                    <!-- ============================================================== -->
+                    <!-- hoverable table -->
+                        <!-- ============================================================== -->
+                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                            <div class="card">
+                                <h5 class="card-header">Orders</h5>
+                                <div class="card-body">
+                                   
+                                    <table class="table table-hover">
+                                        <thead>
+                                           
+                                            <tr>
+                                                <th scope="col">Order #</th>
+                                                <th scope="col">Billing Name</th>
+                                                <th scope="col">Phone</th>
+                                                <th scope="col">Order Total</th>
+                                                      <th scope="col">Date</th>
+                                              </tr>
+                                            </thead>
+                                            <tbody>
+                                                  {% for order in orders %}
+                                              <tr>
+                                                <th scope="row"><a href="#">{{order.order_number}}</a></th>
+                                                <td>{{order.full_name}}</td>
+                                                <td>{{order.phone}}</td>
+                                                <td>${{order.order_total}}</td>
+                                                      <td>{{order.created_at}}</td>
+                                                      <td><a href="{% url 'cancel_order_admin' order.order_number %}" class="btn btn-danger">Cancel</a></td>
+                                              </tr>
+                                          {% endfor %}
+                                           
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- ============================================================== -->
+                        <!-- end hoverable table -->
+                    <!-- ============================================================== -->
+                </div>
+        
+       
+    
+    <!-- ============================================================== -->
+    <!-- end main wrapper -->
+    <!-- ============================================================== -->
+    
+    
+    {% endblock %}

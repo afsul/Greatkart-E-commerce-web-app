@@ -97,6 +97,9 @@
                 <div id="paypal-button-container">
                     <!--Pay pal button will load  -->
                 </div>
+                <a href="{% url 'razorpay' order.order_number %}" class="btn btn-info w-100 mb-3 payWithRazorpay"  id="pay-btn">Pay with Razorpay</a>
+                <a href="{% url 'cod_order_complete' order.order_number %}" class="btn btn-success btn-block">Cash On Delivery</a>
+                
                 
             </div> <!-- card-body.// -->
             </div> <!-- card.// -->
@@ -190,6 +193,6 @@
     
         }).render('#paypal-button-container');
     </script>
-    
+     
 
 {% endblock %} 

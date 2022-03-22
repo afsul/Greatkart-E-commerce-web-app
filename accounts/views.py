@@ -1,14 +1,17 @@
 # from email.message import EmailMessage
+from email.mime import message
 import os
 from django.contrib import messages,auth
 # from django.http import HttpResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
 from twilio.rest import Client
-from accounts.models import Account
+from accounts.models import Account, UserProfile
 from carts.models import Cart, CartItem
 from carts.views import _cart_id
-from .forms import RegistrationfForm
+from orders.models import Order
+import razorpay
+from .forms import RegistrationfForm, UserForm, UserProfileForm
 import requests
 from .private import TWILIO_SERVICE_SID,TWILIO_ACCOUNT_SID,TWILIO_AUTH_TOKEN
 
@@ -37,19 +40,15 @@ def register(request):
             user = Account.objects.create_user(first_name=first_name, last_name=last_name, email=email, username=username, password=password, phone_number=phone_number)
             user.save()
 
-            # #USER ACTIVATION
-            # current_site = get_current_site(request)
-            # mail_subject = 'Please activate your account'
-            # message = render_to_string('accounts/account_verification_email.html',{
-            #     'user':user,
-            #     'domain':current_site,
-            #     'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-            #     'token': default_token_generator.make_token(user)
-            # })
-            # to_email =email
-            # send_email = EmailMessage(mail_subject, message, to=[to_email])
-            # send_email.send()
 
+            # Create User Profile
+            profile = UserProfile()
+            profile.user_id = user.id
+            profile.save()
+
+
+
+           
             # otp account varification
 
             request.session["mobile"] = phone_number
@@ -168,3 +167,76 @@ def logout(request):
 
 # def activate(request, uidb64, token):
 #     return HttpResponse('ok')
+
+@login_required(login_url = 'login')
+def dashboard(request):
+    orders = Order.objects.order_by('-created_at').filter(user_id=request.user.id, is_ordered = True)
+    orders_count = orders.count()
+    context = {
+        'orders_count':orders_count,
+    }
+    return render(request, 'accounts/dashboard.html', context)
+
+@login_required(login_url = 'login')
+def my_orders(request):
+    orders = Order.objects.filter(user=request.user, is_ordered=True).order_by('-created_at')
+    context = {
+        'orders': orders,
+    }
+    return render(request, 'accounts/my_orders.html', context)
+
+    
+@login_required(login_url = 'login')
+def edit_profile(request):
+    userprofile = get_object_or_404(UserProfile, user=request.user)
+    if request.method == 'POST':
+        user_form = UserForm(request.POST, instance=request.user)
+        profile_form = UserProfileForm(request.POST, request.FILES, instance=userprofile)
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
+            messages.success(request, 'Your profile has been updated.')
+            return redirect('edit_profile')
+        else:
+            user_form = UserForm(instance = request.user)
+            profile_form = UserProfileForm(instance = userprofile)
+    
+        context = {
+                'user_form' :user_form,
+                'profile_form':profile_form,
+                  }
+    else:
+            user_form = UserForm(instance = request.user)
+            profile_form = UserProfileForm(instance = userprofile)
+    
+            context = {
+                'user_form' :user_form,
+                'profile_form':profile_form,
+                  }
+            return render(request, 'accounts/edit_profile.html', context)
+    
+# change password
+@login_required(login_url = 'login')
+def change_password(request):
+    if request.method == 'POST':
+        current_password = request.POST['current_password']
+        new_password = request.POST['new_password']
+        confirm_password = request.POST['confirm_password']
+
+        user = Account.objects.get(username__exact = request.user.username)
+        if confirm_password == new_password:
+                success = user.check_password(current_password)
+                if success:
+                    user.set_password(new_password)
+                    user.save()
+                    messages.success(request, 'password updated succesfully')
+                    return redirect(change_password)
+                else:
+                    messages.error(request, 'Please enter a valid password')
+                    return redirect(change_password)
+        else:
+            messages.error(request, 'Password does not match!')
+            return redirect(change_password)
+
+    return render(request, 'accounts/change_password.html')    
+

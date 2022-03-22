@@ -156,3 +156,9 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'afsulullattil@gmail.com'
 EMAIL_HOST_PASSWORD = '$Afsul0007'
 EMAIL_USE_TLS = True
+
+
+
+
+RAZORPAY_API_KEY = 'rzp_test_N9YYgyoIQNNsad'
+RAZORPAY_API_SECRET_KEY = '4WwWBrZdRQIc2PyicXlcHd5O'

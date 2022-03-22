@@ -6,6 +6,7 @@ from accounts.models import Account
 from category.forms import CategoryForm
 from category.models import Category
 from django.contrib.auth.decorators import login_required
+from orders.models import Order
 from store.forms import ProductForm
 from django.utils.text import slugify
 from store.models import Product 
@@ -208,3 +209,22 @@ def product_delete(request,id):
     product.delete()
     # messages.success(request,"Product deleted successfully.")
     return redirect('products_list')
+
+
+def orders_list(request):
+    orders = Order.objects.filter(user=request.user, is_ordered=True).order_by('-created_at')
+    context = {
+        'orders':orders
+    }
+    return render(request, 'admin/orders/orders_list.html', context)
+
+def cancel_order_admin(request, order_number):
+    order = Order.objects.get(user = request.user, order_number = order_number)
+    
+    if request.method == "POST":
+        status = request.POST['cancel_order']
+        order_number.status = status
+        order.save()   
+        print('order cancelled')
+    
+    return redirect('orders_list')
