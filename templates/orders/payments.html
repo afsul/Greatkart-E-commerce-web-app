@@ -97,7 +97,7 @@
                 <div id="paypal-button-container">
                     <!--Pay pal button will load  -->
                 </div>
-                <a href="{% url 'razorpay' order.order_number %}" class="btn btn-info w-100 mb-3 payWithRazorpay"  id="pay-btn">Pay with Razorpay</a>
+                <button class="btn btn-info btn-block" id="rzp-button1">Pay On RazorPay</button>
                 <a href="{% url 'cod_order_complete' order.order_number %}" class="btn btn-success btn-block">Cash On Delivery</a>
                 
                 
@@ -194,5 +194,137 @@
         }).render('#paypal-button-container');
     </script>
      
+<!-- razorpay -->
+<!-- Razorpay -->
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+
+ <script>
+  function codTimer(){
+    let timerInterval
+      Swal.fire({
+        title: 'Thanks for the order!',
+        html: 'Your order confirmation will be generated in <b></b> milliseconds.',
+        timer: 5000,
+        timerProgressBar: true,
+        didOpen: () => {
+          Swal.showLoading()
+          const b = Swal.getHtmlContainer().querySelector('b')
+          timerInterval = setInterval(() => {
+            b.textContent = Swal.getTimerLeft()
+          }, 100)
+        },
+        willClose: () => {
+          clearInterval(timerInterval)
+        }
+      }).then((result) => {
+        /* Read more about handling dismissals below */
+        if (result.dismiss === Swal.DismissReason.timer) {
+          console.log('I was closed by the timer')
+        }
+      })
+    }
+
+
+
+
+    function rzpPayment(ord_no){
+       
+        var data  = {'ord_no': ord_no,  "csrf_token": '{{csrf_token}}'} 
+        $.ajax({
+            url : "{% url 'proceed_payment'  %}",
+            method: "POST",
+            data : data,
+            success : function(response){
+              console.log("arrived here ", response)
+              var order_id = response.payment.id
+              var amount = response.payment.amount   
+              makeRazorPayment(order_id, amount, ord_no);      
+                
+            }
+        })
+    }
+
+
+
+    
+  function makeRazorPayment(order_id, amount, ord_no){
+    var redirect_url = "{% url 'rzp_order_complete' %}"
+    var options = {
+    "key": "rzp_test_N9YYgyoIQNNsad", // Enter the Key ID generated from the Dashboard
+    "amount": amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+    "currency": "INR",
+    "name": "IndiaKart Payment",
+    "description": "Test Transaction",
+    "image": "https://example.com/your_logo",
+    "order_id": order_id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 2
+    "handler": function (response){       
+        console.log(response);
+        /* alert(response.razorpay_payment_id);
+        alert(response.razorpay_order_id);
+        alert(response.razorpay_signature); */
+        window.location.href = redirect_url + '?order_number='+ord_no+'&payment_id='+response.razorpay_payment_id; 
+        let timerInterval
+        Swal.fire({
+          title: 'Thanks for the order!',
+          html: 'Your order confirmation will be generated in <b></b> milliseconds.',
+          timer: 6000,
+          timerProgressBar: true,
+          didOpen: () => {
+            Swal.showLoading()
+            const b = Swal.getHtmlContainer().querySelector('b')
+            timerInterval = setInterval(() => {
+              b.textContent = Swal.getTimerLeft()
+            }, 100)
+          },
+          willClose: () => {
+            clearInterval(timerInterval)
+          }
+        }).then((result) => {
+          /* Read more about handling dismissals below */
+          if (result.dismiss === Swal.DismissReason.timer) {
+            console.log('I was closed by the timer')
+          }
+        })
+        
+    },
+    "prefill" : {    
+        "name": "{{first_name}} {{last_name}}",
+        "email": "{{email}}",
+        "contact": "{{phone}}"
+    },
+    "notes": {
+        "address": "Razorpay Corporate Office"
+    },
+    "theme": {
+        "color": "#3399cc"
+    }
+};
+var rzp1 = new Razorpay(options);
+rzp1.on('payment.failed', function (response){
+        alert(response.error.code);
+        alert(response.error.description);
+        alert(response.error.source);
+        alert(response.error.step);
+        alert(response.error.reason);
+        alert(response.error.metadata.order_id);
+        alert(response.error.metadata.payment_id);
+});
+
+rzp1.open();
+   
+}
+document.getElementById('rzp-button1').onclick = function(e){
+var ord_no = e.target.value
+console.log(ord_no,"sdds")
+rzpPayment(ord_no);
+
+}
+
+</script>
+
+
+<!-- Razorpay -->
 
 {% endblock %} 

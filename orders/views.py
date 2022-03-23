@@ -1,3 +1,4 @@
+from datetime import datetime
 import datetime
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import redirect, render
@@ -7,10 +8,10 @@ from greatkart.settings import RAZORPAY_API_KEY, RAZORPAY_API_SECRET_KEY
 from orders.models import Order, OrderProduct, Payment
 from store.models import Product
 from .forms import OrderForm
-import datetime
 import json
 import razorpay
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.cache import cache_control
 # Create your views here.
 
 def place_order(request, total=0, quantity=0,):
@@ -233,6 +234,136 @@ def cancel_order(request, order_number):
         print('order cancelled')
     
     return redirect('my_orders')
+
+razorpay_client = razorpay.Client(auth=(settings.RAZORPAY_API_KEY, settings.RAZORPAY_API_SECRET_KEY))
+@csrf_exempt
+@cache_control(max_age=0, no_cache=True, no_store=True, must_revalidate=True)
+def proceed_payment(request):
+    print("call received")
+   
+    order_id = request.POST['ord_no']
+    print(order_id)
+    
+    
+
+  
+        # here is the else case
+    order = Order.objects.get(user = request.user, is_ordered = False, order_number = order_id)
+    first_name = order.first_name
+    last_name = order.last_name
+    phone = order.phone
+    email = order.email
+    total = order.order_total * 100
+    order_number = order.order_number
+        # print(first_name,'first name')
+        # print(total,'total')
+        # print(order_number,"order number")
+
+        
+
+    data = { 
+            "amount": total, 
+            "currency": "INR", 
+            "receipt": order_number,
+            
+            }
+        
+    payment = razorpay_client.order.create(data=data)
+    context = {
+            'payment':payment,
+            'order':order,
+            'total':total,
+            'first_name' :first_name,
+            'last_name' :last_name,
+            'phone' :phone,
+            'email' :email,
+            "order_number":order_number,
+            
+        }
+        # print("***********",context)
+    return JsonResponse({'payment':payment})
+
+        # return render(request,'orders/proceed_payment.html',context)
+
+
+
+@cache_control(max_age=0, no_cache=True, no_store=True, must_revalidate=True)
+def rzp_order_complete(request):
+    # print("payment completed and saving")
+    order_number = request.GET.get('order_number')
+    transID = request.GET.get('payment_id')
+    # print(order_number,"- order No &", transID, "- Trans ID")
+    order = Order.objects.get(user = request.user, is_ordered = False, order_number = order_number)
+    # print(order)
+    payment = Payment(
+        user = request.user,
+        payment_id = transID,
+        payment_method = "Razor Pay",
+        amount_paid = order.order_total,
+        status = "COMPLETED",
+        )
+    payment.save()
+    order.payment= payment 
+    order.is_ordered = True
+    order.save()
+
+    cart_items = CartItem.objects.filter(user = request.user)
+    for item in cart_items:
+        orderproduct = OrderProduct()
+        orderproduct.order_id = order.id
+        orderproduct.payment = payment
+        orderproduct.user_id = request.user.id
+        orderproduct.product_id = item.product_id
+        orderproduct.quantity = item.quantity
+        orderproduct.product_price = item.product.price
+        orderproduct.ordered = True
+        orderproduct.save()
+
+        # #for variation - Many to Many field, first save data and then update.
+        # cart_item = CartItem.objects.get(id = item.id)
+        # product_variation = cart_item.variations.all()
+        # orderproduct = OrderProduct.objects.get(id = orderproduct.id)
+        # orderproduct.variations.set(product_variation)
+        # orderproduct.save()
+        
+    # reduce the quantity of sold products
+        product = Product.objects.get(id = item.product_id)
+        product.stock -= item.quantity
+        product.save()
+
+    # clear the cart and send order received confirmation to customer
+    CartItem.objects.filter(user=request.user).delete()
+    
+    try:
+        # print("trying order ID")
+        order = Order.objects.get(order_number = order_number)
+        # print("fetched order ")
+        ordered_products = OrderProduct.objects.filter(order_id=order.id)
+        subtotal = 0
+        for i in ordered_products:
+            # prod_total = i.product_price * i.quantity
+            subtotal += i.product_price * i.quantity
+
+
+        # payment = Payment.objects.get(payment_id = transID)
+
+        context = {
+            # 'prod_total': prod_total,
+            'order':order,
+            'ordered_products' : ordered_products,
+            'order_number': order.order_number,
+            'transID': payment.payment_id,
+            'payment': payment,
+            'subtotal':subtotal,
+        }
+        CartItem.objects.filter(user=request.user).delete()
+        return render(request, 'orders/order_complete.html',context)
+
+
+    except (Payment.DoesNotExist, Order.DoesNotExist):
+
+        # print("payment feedback not received. exiting without saving")
+        return redirect('home')
 
     
             
