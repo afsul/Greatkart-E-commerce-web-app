@@ -1,6 +1,48 @@
 {% extends 'base.html' %}
 {% load static %}
+{%load crispy_forms_tags %} 
 {% block content %}
+
+<style>
+    /* The Modal (background) */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  }
+  
+  /* Modal Content/Box */
+  .modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+  }
+  
+  /* The Close Button */
+  .close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+  }
+  
+  .close:hover,
+  .close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+  }
+</style>
+
 <section class="section-content padding-y bg">
     <div class="container">
     
@@ -10,55 +52,26 @@
         <aside class="col-lg-6">
     <div class="card">
         <div class="card-body">
-            <h4 class="card-title mb-4"  >Billing Address</h4>
-            <form action="{% url 'place_order' %}" method="POST" >
-                {% csrf_token %}
-                <div class="form-row">
-                    <div class="col form-group">
-                        <label for="">First Name</label>
-                        <input type="text" name="first_name" class="form-control" required >
-                    </div>
-                    <div class="col form-group">
-                        <label for="">last Name</label>
-                        <input type="text" name="last_name" class="form-control" required >
-                    </div></div>
-                    <div class="form-row">
-                    <div class="col form-group">
-                        <label for="">Email</label>
-                        <input type="email" name="email" class="form-control" required >
-                    </div>
-                    <div class="col form-group">
-                        <label for="">Phone Number</label>
-                        <input type="text" name="phone" class="form-control" required >
-                    </div></div>
-                    <div class="form-row">
-                    <div class="col form-group">
-                        <label for="">Address Line 1</label>
-                        <input type="text" name="address_line_1" class="form-control" required >
-                    </div>
-                    <div class="col form-group">
-                        <label for="">Address Line 2</label>
-                        <input type="text" name="address_line_2" class="form-control" >
-                    </div></div>
-                    <div class="form-row">
-                    <div class="col form-group">
-                        <label for="">City</label>
-                        <input type="text" name="city" class="form-control" required >
-                    </div>
-                    <div class="col form-group">
-                        <label for="">State</label>
-                        <input type="text" name="state" class="form-control" required >
-                    </div>
-                    <div class="col form-group">
-                        <label for="">Country</label>
-                        <input type="text" name="country" class="form-control" required >
-                    </div></div>
-                    <div class="form-row">
-                        <label for="">Order Note</label>
-                        <textarea name="order_note" class="form-control" rows="2" ></textarea>
-                    </div>
+            <button class="btn btn-primary mb-3" id="myBtn" ><span style="font-size: 20px;">+</span> Add New Address</button>
+            <!-- The Modal -->
+            <div id="myModal" class="modal">
+
+                <!-- Modal content -->
+                <div class="modal-content">
+                <span class="close">&times;</span>
+                <form action="{% url 'place_order' %}" method="POST" >
+                    {% csrf_token %}
+                    <h3>Add Address</h3>
+                    {{ form|crispy }}
+                       
+                    <button class="btn btn-primary mt-3">Save</button>
+                    </form>
                 </div>
             
+            </div>
+            <h4 class="card-title mb-4"  >Select Address</h4>
+           
+            </div>
         </div>
      <!-- card.// -->
     
@@ -123,5 +136,32 @@
     </div> <!-- container .//  -->
     </section>
     <!-- ========================= SECTION CONTENT END// ========================= -->
-    
+    <script>
+        // Get the modal
+var modal = document.getElementById("myModal");
+
+// Get the button that opens the modal
+var btn = document.getElementById("myBtn");
+
+// Get the <span> element that closes the modal
+var span = document.getElementsByClassName("close")[0];
+
+// When the user clicks on the button, open the modal
+btn.onclick = function() {
+
+  modal.style.display = "block";
+}
+
+// When the user clicks on <span> (x), close the modal
+span.onclick = function() {
+  modal.style.display = "none";
+}
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+}
+    </script>
 {% endblock %}

@@ -67,7 +67,7 @@
                                                 <td>{{order.phone}}</td>
                                                 <td>${{order.order_total}}</td>
                                                       <td>{{order.created_at}}</td>
-                                                      <td><a href="{% url 'cancel_order_admin' order.order_number %}" class="btn btn-danger">Cancel</a></td>
+                                                      <td><a href="{% url 'cancel_order_admin' %}" class="btn btn-danger">Cancel</a></td>
                                               </tr>
                                           {% endfor %}
                                            

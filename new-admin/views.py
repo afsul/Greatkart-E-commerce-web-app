@@ -1,5 +1,6 @@
 
 from multiprocessing import context
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages,auth
 from accounts.models import Account
@@ -11,12 +12,15 @@ from store.forms import ProductForm
 from django.utils.text import slugify
 from store.models import Product 
 
-# Create your views here.
 
+
+#Home
 def admin_home(request):
     
     return render(request, 'admin/admin-home.html')
 
+
+#Admin Login/logout
 def admin_login(request):
   if  request.session.get('admin_login'):
     return render(request, 'admin/admin-home.html')
@@ -47,6 +51,8 @@ def admin_logout(request):
     messages.success(request, 'You are logged out')
     return redirect('admin-login')
 
+
+#User Managememt
 def user_list(request):
     users = Account.objects.all()
     context = {'users':users}
@@ -136,44 +142,46 @@ def products_list(request):
 
 #add product
 def add_product(request):
-        if request.user.is_authenticated:
-            if request.user.is_superadmin:
+                   
                 if request.method == 'POST':
                     form = ProductForm(request.POST or None, request.FILES or None)
                     if form.is_valid():
-                        product_name = form.cleaned_data['product_name']
-                        slug = slugify(product_name)
-                        description = form.cleaned_data['description']
-                        price = form.cleaned_data['price']
-                        images = form.cleaned_data['images']
-                        stock = form.cleaned_data['stock']
-                        # is_available = form.cleaned_data['is_available']
-                        category = form.cleaned_data['category']
-                        
-                        product = Product.objects.create(product_name=product_name, slug=slug, description=description, price=price, images=images, stock=stock,category=category)
+                        product = Product()
+                        product.product_name = form.cleaned_data['product_name']
+                        product.slug = slugify(product.product_name)
+                        product.description = form.cleaned_data['description']
+                        product.price = form.cleaned_data['price']
+                        product.images = form.cleaned_data['images']
+                        product.stock = form.cleaned_data['stock']
+                        product.category = form.cleaned_data['category']
+                        # product = Product.objects.create(product_name=product_name, slug=slug, description=description, price=price, images=images, stock=stock,category=category)
                         product.save()
-                        return redirect('products_list')
-                
-                    else:
-                        form = ProductForm(request.POST or None, request.FILES or None)
-                        context = {
-                                'form':form
+                        return redirect(add_product)
+                    products = Product.objects.all()
+                    context = {
+                                'products':products
                             }
                     return render(request, 'admin/products/add_product.html', context)
-
+                
                 else:
                     form = ProductForm(request.POST or None, request.FILES or None)
                     context = {
                                 'form':form
                             }
                     return render(request, 'admin/products/add_product.html', context)
-            else:
-                return redirect('admin/admin_login')
+                
 
-        else:
-            return redirect('admin_login')  
-
-
+                
+                
+          
+# image crop
+# def product_crop(request):
+#     form = ProductForm(request.POST or None, request.FILES or None)
+#     if form.is_valid():
+#         form.save()
+#         return JsonResponse({'message': 'works'})
+#     context = {'form': form}
+#     return render(request, 'admin/products/crop.html', context)    
 
 # Product edit
 def edit_product(request ,id):
@@ -181,7 +189,7 @@ def edit_product(request ,id):
      if request.user.is_authenticated:
         if request.user.is_superadmin:
             instance = get_object_or_404(Product, id=id)
-            form = ProductForm(request.POST or None, request.FILES or None, instance=instance)
+            form = ProductForm(request.FILES or None, instance=instance)
             if request.method == "POST":
                 if form.is_valid():
                     form.save()
@@ -189,7 +197,7 @@ def edit_product(request ,id):
                     return redirect('products_list')
                 else:
                     instance = get_object_or_404(Product, id=id)
-                    form = ProductForm(request.POST or None, request.FILES or None, instance=instance)  
+                    form = ProductForm(request.FILES or None, instance=instance)  
                     context = {
                         'form'     : form,
                         'product':instance,
@@ -197,7 +205,7 @@ def edit_product(request ,id):
                     return render(request, 'admin/products/edit_product.html',context)
             else:
                 instance = get_object_or_404(Product, id=id)
-                form = ProductForm(request.POST or None, request.FILES or None, instance=instance)  
+                form = ProductForm(request.FILES or None, instance=instance)  
                 context = {
                     'form'     : form,
                     'product':instance,
@@ -210,7 +218,7 @@ def product_delete(request,id):
     # messages.success(request,"Product deleted successfully.")
     return redirect('products_list')
 
-
+#Order Management
 def orders_list(request):
     orders = Order.objects.filter(user=request.user, is_ordered=True).order_by('-created_at')
     context = {
@@ -218,13 +226,18 @@ def orders_list(request):
     }
     return render(request, 'admin/orders/orders_list.html', context)
 
-def cancel_order_admin(request, order_number):
-    order = Order.objects.get(user = request.user, order_number = order_number)
+def cancel_order_admin(request, id):
+    print('entered to cancel function')
+    order = Order.objects.get(user = request.user, order_number = id)
     
     if request.method == "POST":
-        status = request.POST['cancel_order']
-        order_number.status = status
+        # status = request.POST['cancel_order']
+        order.status = "Cancelled"
         order.save()   
         print('order cancelled')
     
     return redirect('orders_list')
+
+# def delete_everything(self):
+#     Order.objects.all().delete()
+#     return HttpResponse('cleared')
