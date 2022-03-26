@@ -142,10 +142,12 @@ def products_list(request):
 
 #add product
 def add_product(request):
-                   
+                print('Entered to add product')
                 if request.method == 'POST':
+                    print('Entered to request ot method')
                     form = ProductForm(request.POST or None, request.FILES or None)
                     if form.is_valid():
+                        print('form is valid')
                         product = Product()
                         product.product_name = form.cleaned_data['product_name']
                         product.slug = slugify(product.product_name)
@@ -154,12 +156,15 @@ def add_product(request):
                         product.images = form.cleaned_data['images']
                         product.stock = form.cleaned_data['stock']
                         product.category = form.cleaned_data['category']
-                        # product = Product.objects.create(product_name=product_name, slug=slug, description=description, price=price, images=images, stock=stock,category=category)
+                        product = Product.objects.create(product_name=product.product_name, slug=product.slug, description=product.description, price=product.price, images= product.images, stock=product.stock,category=product.category)
                         product.save()
-                        return redirect(add_product)
+                        print('products saved')
+                        return redirect(products_list)
                     products = Product.objects.all()
+                    category = Category.objects.only('category_name')
                     context = {
-                                'products':products
+                                'products':products,
+                                'category':category,
                             }
                     return render(request, 'admin/products/add_product.html', context)
                 
@@ -171,17 +176,7 @@ def add_product(request):
                     return render(request, 'admin/products/add_product.html', context)
                 
 
-                
-                
-          
-# image crop
-# def product_crop(request):
-#     form = ProductForm(request.POST or None, request.FILES or None)
-#     if form.is_valid():
-#         form.save()
-#         return JsonResponse({'message': 'works'})
-#     context = {'form': form}
-#     return render(request, 'admin/products/crop.html', context)    
+            
 
 # Product edit
 def edit_product(request ,id):
@@ -238,6 +233,6 @@ def cancel_order_admin(request, id):
     
     return redirect('orders_list')
 
-# def delete_everything(self):
-#     Order.objects.all().delete()
-#     return HttpResponse('cleared')
+
+def trial(request):
+    return render(request,'admin/Trial/Cropper.html')

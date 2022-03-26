@@ -1,7 +1,9 @@
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from accounts.models import UserProfile
 from carts.models import Cart, CartItem
 from django.core.exceptions import ObjectDoesNotExist
+from orders.models import Address
 from store.models import Product
 from django.contrib.auth.decorators import login_required
 
@@ -12,10 +14,12 @@ def cart(request, total=0, quantity=0, cart_items=None):
         grand_total=0
         if request.user.is_authenticated:
             cart_items = CartItem.objects.filter(user=request.user, is_active=True)
+           
         else:
 
             cart = Cart.objects.get(cart_id=_cart_id(request))
             cart_items = CartItem.objects.filter(cart=cart, is_active=True)
+            
         for cart_item in cart_items:
             total += (cart_item.product.price * cart_item.quantity)
             quantity += cart_item.quantity
@@ -39,24 +43,12 @@ def _cart_id(request):
     if not cart:
         cart = request.session.create()
     return cart
-
-
+    
 
 
 # Add to cart
 def add_cart(request, product_id):
     product =  Product.objects.get(id=product_id) #get the product
-    # product_variation = []
-    if request.method == 'POST':
-        for item in request.POST:
-            key = item
-            value = request.POST[key]
-
-            # try:
-            #     variation = Variation.objects.get(variation_category__iexact=key, variation_value__iexact=value)
-            #     product_variation.append(variation)
-            # except:
-            #     pass        
     
     try:
         cart = Cart.objects.get(cart_id = _cart_id(request)) #get the cart using the cart id present in the session
@@ -68,10 +60,6 @@ def add_cart(request, product_id):
 
     try:
         cart_item = CartItem.objects.get(product=product, cart=cart)
-        # if len(product_variation) > 0:
-        #     cart_item.variations.clear()
-        #     for item in product_variation:
-        #         cart_item.variations.add(item)
         cart_item.quantity += 1 
         cart_item.save()
     except CartItem.DoesNotExist:
@@ -80,10 +68,6 @@ def add_cart(request, product_id):
             quantity = 1,
             cart = cart,
         )
-        # if len(product_variation) > 0:
-        #     cart_item.variations.clear()
-        #     for item in product_variation:
-        #         cart_item.variations.add(item)
         cart_item.save()
     return redirect('cart')
 
@@ -124,7 +108,7 @@ def checkout(request, total=0, quantity=0, cart_items=None):
         grand_total = total + tax
     except ObjectDoesNotExist:
         pass #just ignore
-
+    address = UserProfile.objects.filter(user=request.user)
     
     context = { 
         'total': total,                 
@@ -132,6 +116,7 @@ def checkout(request, total=0, quantity=0, cart_items=None):
         'cart_items':cart_items,
         'tax'      : tax,
         'grand_total' : grand_total,
+        'address':address,
     }
     return render(request, 'store/checkout.html', context)
     

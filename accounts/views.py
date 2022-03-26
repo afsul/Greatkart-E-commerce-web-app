@@ -1,5 +1,7 @@
 # from email.message import EmailMessage
+from audioop import add
 from email.mime import message
+from multiprocessing import context
 import os
 from django.contrib import messages,auth
 # from django.http import HttpResponse
@@ -240,3 +242,39 @@ def change_password(request):
 
     return render(request, 'accounts/change_password.html')    
 
+def my_address(request):
+    user =request.user
+    address = UserProfile.objects.filter(user=user)
+    context={
+        'address':address,
+    }
+    return render(request, 'accounts/my_address.html',context)
+
+
+def add_address(request):
+    if request.method == "POST":
+        form = UserProfileForm(request.POST)
+        if form.is_valid():
+            user = Account.objects.get(id = request.user.id)
+            address_line_1 = form.cleaned_data['address_line_1']
+            address_line_2 = form.cleaned_data['address_line_2']
+            city = form.cleaned_data['city']
+            state = form.cleaned_data['state']
+            country = form.cleaned_data['country']
+    
+            new_address = UserProfile.objects.create(user=user, address_line_1=address_line_1, address_line_2=address_line_2, city=city, state=state, country=country)
+            new_address.save()       
+
+            return redirect ('my_address')
+        else:
+            form = UserProfileForm()    
+            context = {
+                    'form':form
+            }
+            return render(request, 'accounts/add_address.html', context)
+    else:
+        form = UserProfileForm()    
+        context = {
+                    'form':form
+            }
+        return render(request, 'accounts/add_address.html', context)

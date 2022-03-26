@@ -1,3 +1,4 @@
+from random import triangular
 from django.urls import path
 from . import views
 
@@ -30,6 +31,12 @@ urlpatterns = [
     #Order Management
     path('orders_list/',views.orders_list,name='orders_list'),
     path('cancel_order_admin/<int:id>/',views.cancel_order_admin,name='cancel_order_admin'),
+
+
+    # trail
+    path('trial',views.trial, name='trail'),
+
+
 
     # path('delete_everything/',views.delete_everything,name='delete_everything')
 

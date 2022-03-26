@@ -35,6 +35,7 @@
 			<figcaption class="info-wrap">
 				<a href="{{ product.get_url }}" class="title">{{ product.product_name }}</a>
 				<div class="price mt-1">$ {{ product.price }}</div> <!-- price-wrap.// -->
+				<a href="{% url  'add_cart' product.id	 %}" class="btn btn-primary">Buy Now</a>
 			</figcaption>
 		</div>
 	</div> <!-- col.// -->	

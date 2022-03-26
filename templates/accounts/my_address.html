@@ -1,0 +1,7 @@
+{% for address in address  %}
+{{address.address_line_1}}
+{% endfor %}
+
+
+
+<a href="{% url 'add_address' %}" class="btn btn-primary">Add Address</a>

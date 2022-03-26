@@ -10,7 +10,7 @@ urlpatterns = [
    path('rzp_order_complete/', views.rzp_order_complete, name='rzp_order_complete'),
    path('cod_order_complete/<int:order_number>/',views.cod_order_complete, name='cod_order_complete'),
    path('cancel_order/<int:id>/',views.cancel_order, name='cancel_order'),
-   path('billing_adrress/',views.billing_adrress, name='billing_adrress'),
+   # path('billing_adrress/',views.billing_adrress, name='billing_adrress'),
 
 
 

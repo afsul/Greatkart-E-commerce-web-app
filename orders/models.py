@@ -15,6 +15,20 @@ class Payment(models.Model):
 
     def __str__(self):
         return self.payment_id
+class Address(models.Model):
+    user = models.ForeignKey(Account, on_delete=models.CASCADE) 
+    first_name = models.CharField(max_length=50)
+    last_name = models.CharField(max_length=50)
+    phone = models.CharField(max_length=15)
+    email = models.EmailField(max_length=50)
+    address_line_1 = models.CharField(max_length=50)
+    address_line_2 = models.CharField(max_length=50, blank=True)
+    country = models.CharField(max_length=50)
+    state = models.CharField(max_length=50)
+    city = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.first_name
 
 
 class Order(models.Model):
@@ -30,7 +44,7 @@ class Order(models.Model):
 
     user = models.ForeignKey(Account, on_delete=models.SET_NULL, null=True)
     payment = models.ForeignKey(Payment, on_delete=models.SET_NULL, blank=True, null=True)
-    order_number = models.IntegerField()
+    order_number = models.CharField(max_length=30)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     phone = models.CharField(max_length=15)
