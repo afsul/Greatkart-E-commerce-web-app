@@ -1,255 +1,256 @@
 {% extends 'admin/admin-base.html' %}
 {% load static %}
 {% block content %}
-  <!-- pageheader  -->
-                    <!-- ============================================================== -->
-                    <div class="row">
-                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-                            <div class="page-header">
-                                <h2 class="pageheader-title">Dashboard </h2>
-                                <p class="pageheader-text">Nulla euismod urna eros, sit amet scelerisque torton lectus vel mauris facilisis faucibus at enim quis massa lobortis rutrum.</p>
-                                <div class="page-breadcrumb">
-                                    <nav aria-label="breadcrumb">
-                                        <ol class="breadcrumb">
-                                            <li class="breadcrumb-item"><a href="#" class="breadcrumb-link">Dashboard</a></li>
-                                            <!-- <li class="breadcrumb-item active" aria-current="page">E-Commerce Dashboard Template</li> -->
-                                        </ol>
-                                    </nav>
-                                </div>
-                            </div>
-                        </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+<!-- pageheader  -->
+<!-- ============================================================== -->
+<div class="row">
+    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+        <div class="page-header">
+            <h2 class="pageheader-title">Dashboard </h2>
+            <p class="pageheader-text">Nulla euismod urna eros, sit amet scelerisque torton lectus vel mauris facilisis
+                faucibus at enim quis massa lobortis rutrum.</p>
+            <div class="page-breadcrumb">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="#" class="breadcrumb-link">Dashboard</a></li>
+                        <!-- <li class="breadcrumb-item active" aria-current="page">E-Commerce Dashboard Template</li> -->
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- ============================================================== -->
+<!-- end pageheader  -->
+<div class="ecommerce-widget">
+
+    <div class="row">
+        <!-- sales  -->
+        <!-- ============================================================== -->
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-12">
+            <div class="card border-3 border-top border-top-primary">
+                <div class="card-body">
+                    <h5 class="text-muted">Sales</h5>
+                    <div class="metric-value d-inline-block">
+                        <h1 class="mb-1">$12099</h1>
                     </div>
-                    <!-- ============================================================== -->
-                    <!-- end pageheader  -->
-                    <div class="ecommerce-widget">
+                    <div class="metric-label d-inline-block float-right text-success font-weight-bold">
+                        <span class="icon-circle-small icon-box-xs text-success bg-success-light"><i
+                                class="fa fa-fw fa-arrow-up"></i></span><span class="ml-1">5.86%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ============================================================== -->
+        <!-- end sales  -->
+        <!-- ============================================================== -->
+        <!-- ============================================================== -->
+        <!-- new customer  -->
+        <!-- ============================================================== -->
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-12">
+            <div class="card border-3 border-top border-top-primary">
+                <div class="card-body">
+                    <h5 class="text-muted">New Customer</h5>
+                    <div class="metric-value d-inline-block">
+                        <h1 class="mb-1">1245</h1>
+                    </div>
+                    <div class="metric-label d-inline-block float-right text-success font-weight-bold">
+                        <span class="icon-circle-small icon-box-xs text-success bg-success-light"><i
+                                class="fa fa-fw fa-arrow-up"></i></span><span class="ml-1">10%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ============================================================== -->
+        <!-- end new customer  -->
+        <!-- ============================================================== -->
+        <!-- ============================================================== -->
+        <!-- visitor  -->
+        <!-- ============================================================== -->
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-12">
+            <div class="card border-3 border-top border-top-primary">
+                <div class="card-body">
+                    <h5 class="text-muted">Visitor</h5>
+                    <div class="metric-value d-inline-block">
+                        <h1 class="mb-1">13000</h1>
+                    </div>
+                    <div class="metric-label d-inline-block float-right text-success font-weight-bold">
+                        <span class="icon-circle-small icon-box-xs text-success bg-success-light"><i
+                                class="fa fa-fw fa-arrow-up"></i></span><span class="ml-1">5%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ============================================================== -->
+        <!-- end visitor  -->
+        <!-- ============================================================== -->
+        <!-- ============================================================== -->
+        <!-- total orders  -->
+        <!-- ============================================================== -->
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-12">
+            <div class="card border-3 border-top border-top-primary">
+                <div class="card-body">
+                    <h5 class="text-muted">Total Orders</h5>
+                    <div class="metric-value d-inline-block">
+                        <h1 class="mb-1">1340</h1>
+                    </div>
+                    <div class="metric-label d-inline-block float-right text-danger font-weight-bold">
+                        <span class="icon-circle-small icon-box-xs text-danger bg-danger-light bg-danger-light "><i
+                                class="fa fa-fw fa-arrow-down"></i></span><span class="ml-1">4%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ============================================================== -->
+        <!-- end total orders  -->
+    </div>
+    <div class="row">
+        <!-- ============================================================== -->
 
-                        <div class="row">
-                            <!-- sales  -->
-                            <!-- ============================================================== -->
-                            <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-12">
-                                <div class="card border-3 border-top border-top-primary">
-                                    <div class="card-body">
-                                        <h5 class="text-muted">Sales</h5>
-                                        <div class="metric-value d-inline-block">
-                                            <h1 class="mb-1">$12099</h1>
-                                        </div>
-                                        <div class="metric-label d-inline-block float-right text-success font-weight-bold">
-                                            <span class="icon-circle-small icon-box-xs text-success bg-success-light"><i class="fa fa-fw fa-arrow-up"></i></span><span class="ml-1">5.86%</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- ============================================================== -->
-                            <!-- end sales  -->
-                            <!-- ============================================================== -->
-                            <!-- ============================================================== -->
-                            <!-- new customer  -->
-                            <!-- ============================================================== -->
-                            <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-12">
-                                <div class="card border-3 border-top border-top-primary">
-                                    <div class="card-body">
-                                        <h5 class="text-muted">New Customer</h5>
-                                        <div class="metric-value d-inline-block">
-                                            <h1 class="mb-1">1245</h1>
-                                        </div>
-                                        <div class="metric-label d-inline-block float-right text-success font-weight-bold">
-                                            <span class="icon-circle-small icon-box-xs text-success bg-success-light"><i class="fa fa-fw fa-arrow-up"></i></span><span class="ml-1">10%</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- ============================================================== -->
-                            <!-- end new customer  -->
-                            <!-- ============================================================== -->
-                            <!-- ============================================================== -->
-                            <!-- visitor  -->
-                            <!-- ============================================================== -->
-                            <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-12">
-                                <div class="card border-3 border-top border-top-primary">
-                                    <div class="card-body">
-                                        <h5 class="text-muted">Visitor</h5>
-                                        <div class="metric-value d-inline-block">
-                                            <h1 class="mb-1">13000</h1>
-                                        </div>
-                                        <div class="metric-label d-inline-block float-right text-success font-weight-bold">
-                                            <span class="icon-circle-small icon-box-xs text-success bg-success-light"><i class="fa fa-fw fa-arrow-up"></i></span><span class="ml-1">5%</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- ============================================================== -->
-                            <!-- end visitor  -->
-                            <!-- ============================================================== -->
-                            <!-- ============================================================== -->
-                            <!-- total orders  -->
-                            <!-- ============================================================== -->
-                            <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-12">
-                                <div class="card border-3 border-top border-top-primary">
-                                    <div class="card-body">
-                                        <h5 class="text-muted">Total Orders</h5>
-                                        <div class="metric-value d-inline-block">
-                                            <h1 class="mb-1">1340</h1>
-                                        </div>
-                                        <div class="metric-label d-inline-block float-right text-danger font-weight-bold">
-                                            <span class="icon-circle-small icon-box-xs text-danger bg-danger-light bg-danger-light "><i class="fa fa-fw fa-arrow-down"></i></span><span class="ml-1">4%</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- ============================================================== -->
-                            <!-- end total orders  -->
-                        </div>
-                        <div class="row">
-                            <!-- ============================================================== -->
-                      
-                            <!-- ============================================================== -->
+        <!-- ============================================================== -->
 
-                                          <!-- recent orders  -->
-                            <!-- ============================================================== -->
-                            <div class="col-xl-9 col-lg-12 col-md-6 col-sm-12 col-12">
-                                <div class="card">
-                                    <h5 class="card-header">Recent Orders</h5>
-                                    <div class="card-body p-0">
-                                        <div class="table-responsive">
-                                            <table class="table">
-                                                <thead class="bg-light">
-                                                    <tr class="border-0">
-                                                        <th class="border-0">#</th>
-                                                        <th class="border-0">Image</th>
-                                                        <th class="border-0">Product Name</th>
-                                                        <th class="border-0">Product Id</th>
-                                                        <th class="border-0">Quantity</th>
-                                                        <th class="border-0">Price</th>
-                                                        <th class="border-0">Order Time</th>
-                                                        <th class="border-0">Customer</th>
-                                                        <th class="border-0">Status</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td>1</td>
-                                                        <td>
-                                                            <div class="m-r-10"><img src="{% static 'assets/images/product-pic.jpg' %}" alt="user" class="rounded" width="45"></div>
-                                                        </td>
-                                                        <td>Product #1 </td>
-                                                        <td>id000001 </td>
-                                                        <td>20</td>
-                                                        <td>$80.00</td>
-                                                        <td>27-08-2018 01:22:12</td>
-                                                        <td>Patricia J. King </td>
-                                                        <td><span class="badge-dot badge-brand mr-1"></span>InTransit </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>2</td>
-                                                        <td>
-                                                            <div class="m-r-10"><img src="{% static 'assets/images/product-pic-2.jpg' %}" alt="user" class="rounded" width="45"></div>
-                                                        </td>
-                                                        <td>Product #2 </td>
-                                                        <td>id000002 </td>
-                                                        <td>12</td>
-                                                        <td>$180.00</td>
-                                                        <td>25-08-2018 21:12:56</td>
-                                                        <td>Rachel J. Wicker </td>
-                                                        <td><span class="badge-dot badge-success mr-1"></span>Delivered </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>3</td>
-                                                        <td>
-                                                            <div class="m-r-10"><img src="{% static 'assets/images/product-pic-3.jpg' %}" alt="user" class="rounded" width="45"></div>
-                                                        </td>
-                                                        <td>Product #3 </td>
-                                                        <td>id000003 </td>
-                                                        <td>23</td>
-                                                        <td>$820.00</td>
-                                                        <td>24-08-2018 14:12:77</td>
-                                                        <td>Michael K. Ledford </td>
-                                                        <td><span class="badge-dot badge-success mr-1"></span>Delivered </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>4</td>
-                                                        <td>
-                                                            <div class="m-r-10"><img src="{% static 'assets/images/product-pic-4.jpg' %}" alt="user" class="rounded" width="45"></div>
-                                                        </td>
-                                                        <td>Product #4 </td>
-                                                        <td>id000004 </td>
-                                                        <td>34</td>
-                                                        <td>$340.00</td>
-                                                        <td>23-08-2018 09:12:35</td>
-                                                        <td>Michael K. Ledford </td>
-                                                        <td><span class="badge-dot badge-success mr-1"></span>Delivered </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td colspan="9"><a href="#" class="btn btn-outline-light float-right">View Details</a></td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- ============================================================== -->
-                            <!-- end recent orders  -->
+        <!-- recent orders  -->
+        <!-- ============================================================== -->
+        <div class="col-xl-12 col-lg-12 col-md-6 col-sm-12 col-12">
+            <div class="card">
+                <h5 class="card-header">Recent Orders</h5>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead class="bg-light">
+                                <tr class="border-0">
 
-    
-                            <!-- ============================================================== -->
-                            <!-- ============================================================== -->
-                            	                        <!-- product category  -->
-                            <!-- ============================================================== -->
-                            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12">
-                                <div class="card">
-                                    <h5 class="card-header"> Product Category</h5>
-                                    <div class="card-body">
-                                        <div class="ct-chart-category ct-golden-section" style="height: 315px;"></div>
-                                        <div class="text-center m-t-40">
-                                            <span class="legend-item mr-3">
-                                                    <span class="fa-xs text-primary mr-1 legend-tile"><i class="fa fa-fw fa-square-full "></i></span><span class="legend-text">Man</span>
-                                            </span>
-                                            <span class="legend-item mr-3">
-                                                <span class="fa-xs text-secondary mr-1 legend-tile"><i class="fa fa-fw fa-square-full"></i></span>
-                                            <span class="legend-text">Woman</span>
-                                            </span>
-                                            <span class="legend-item mr-3">
-                                                <span class="fa-xs text-info mr-1 legend-tile"><i class="fa fa-fw fa-square-full"></i></span>
-                                            <span class="legend-text">Accessories</span>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- ============================================================== -->
-                            <!-- end product category  -->
-                            <!-- ============================================================== -->
-                        </div>
-                        <div class="row">
-                            <!-- ============================================================== -->
-              			
-                                   <!-- product sales  -->
-                            <!-- ============================================================== -->
-                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <!-- <div class="float-right">
-                                                <select class="custom-select">
-                                                    <option selected>Today</option>
-                                                    <option value="1">Weekly</option>
-                                                    <option value="2">Monthly</option>
-                                                    <option value="3">Yearly</option>
-                                                </select>
-                                            </div> -->
-                                        <h5 class="mb-0"> Product Sales</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="ct-chart-product ct-golden-section"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- ============================================================== -->
-                            <!-- end product sales  -->
-                            <!-- ============================================================== -->
+                                    <th class="border-0">Order #</th>
+                                    <th class="border-0">Billing Name</th>
+                                    <th class="border-0">Phone</th>
+                                    <th class="border-0">Order Total</th>
+                                    <th class="border-0">Date</th>
+                                    <th class="border-0">Status</th>
 
-                        </div>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in orders %}
+                                <tr>
 
-                     
+                                    <td>{{order.order_number}}</td>
+                                    <td>{{order.full_name}}</td>
+                                    <td>{{order.phone}}</td>
+                                    <td>${{order.order_total}}</td>
+                                    <td>{{order.created_at}}</td>
+                                    <td>{{order.status}}</td>
+
+                                </tr>
+                                {% endfor %}
+                                <tr>
+                                    <td colspan="9"><a href="{% url 'orders_list' %}"
+                                            class="btn btn-outline-light float-right">View
+                                            Orders</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ============================================================== -->
+        <!-- end recent orders  -->
+    </div>
+    <div class="row">
+
+        <!-- product sales -->
+        <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
+            <div class="card">
+                <h5 class="card-header">Product Sales</h5>
+                <canvas id="myChart" width="400" height="400"></canvas>
+                <script>
+                    const ctx = document.getElementById('myChart').getContext('2d');
+                    const myChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+                            datasets: [{
+                                label: '# of Votes',
+                                data: [12, 19, 3, 5, 2, 3],
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.2)',
+                                    'rgba(54, 162, 235, 0.2)',
+                                    'rgba(255, 206, 86, 0.2)',
+                                    'rgba(75, 192, 192, 0.2)',
+                                    'rgba(153, 102, 255, 0.2)',
+                                    'rgba(255, 159, 64, 0.2)'
+                                ],
+                                borderColor: [
+                                    'rgba(255, 99, 132, 1)',
+                                    'rgba(54, 162, 235, 1)',
+                                    'rgba(255, 206, 86, 1)',
+                                    'rgba(75, 192, 192, 1)',
+                                    'rgba(153, 102, 255, 1)',
+                                    'rgba(255, 159, 64, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                </script>
+
+            </div>
+        </div>
+
+
+        <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
+            <div class="card">
+                <h5 class="card-header">Product Category</h5>
+                <canvas id="aChart" width="400" height="400" class="mb-5"></canvas>
+                <script>
+                    const donut = document.getElementById('aChart').getContext('2d');
+                    var myDoughnutChart = new Chart(donut, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Jeans', 'Jackets', 'Shirts'],
+                            datasets: [{
+                                data: [10, 20, 30],
+                                backgroundColor: [
+                                'rgba(255, 99, 132, 0.2)',
+                                'rgba(54, 162, 235, 0.2)',
+                                'rgba(255, 206, 86, 0.2)'
+                               
+                            ],
+                            borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)'
+                           
+                        ],
+                        borderWidth: 1
+                            }],
+                          
+                        },
                        
-                    <script src="{% static 'assets/vendor/jquery/jquery-3.3.1.min.js' %}"></script>
-                    {% endblock %}
+                    });
+                </script>
+
+            </div>
+        </div>
+
+
+
+    </div>
+
+
+
+
+
+
+    <script src="{% static 'assets/vendor/jquery/jquery-3.3.1.min.js' %}"></script>
+    <script src="{% static 'assets/vendor/charts/charts-bundle/Chart.bundle.js' %}"></script>
+    <script src="{% static 'assets/vendor/charts/charts-bundle/chartjs.js' %}"></script>
+    {% endblock %}

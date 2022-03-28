@@ -1,5 +1,6 @@
 {% extends 'admin/admin-base.html' %}
 {% load static %}
+{% load crispy_forms_tags %}
 {% block content %}
  
 <head>
@@ -29,7 +30,7 @@
                                     <ol class="breadcrumb">
                                         <li class="breadcrumb-item"><a href="#" class="breadcrumb-link">Dashboard</a></li>
                                         <li class="breadcrumb-item"><a href="#" class="breadcrumb-link">Orders</a></li>
-                                        <li class="breadcrumb-item active" aria-current="page">Orders List</li>
+                                        <li class="breadcrumb-item active" aria-current="page">Update Status</li>
                                     </ol>
                                 </nav>
                             </div>
@@ -45,45 +46,22 @@
                         <!-- ============================================================== -->
                         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
                             <div class="card">
-                                <h5 class="card-header">Orders</h5>
+                                <h5 class="card-header"></h5>
                                 <div class="card-body">
                                    
-                                    <table class="table table-hover">
-                                        <thead>
-                                           
-                                            <tr>
-                                                <th scope="col">Order #</th>
-                                                <th scope="col">Billing Name</th>
-                                                <th scope="col">Phone</th>
-                                                <th scope="col">Order Total</th>
-                                                      <th scope="col">Date</th>
-                                              </tr>
-                                            </thead>
-                                            <tbody>
-                                                  {% for order in orders %}
-                                                  <form action="{% url 'update_order_status' order.order_number %}" method="POST">
-                                                      {% csrf_token %}
-                                              <tr>
-                                                <th scope="row"><a href="#">{{order.order_number}}</a></th>
-                                                <td>{{order.full_name}}</td>
-                                                <td>{{order.phone}}</td>
-                                                <td>${{order.order_total}}</td>
-                                                      <td>{{order.created_at}}</td>
-                                                      <td>{{order.status}}</td>
-                                                      {% if order.status == "Cancelled" %}
-                                                      {% else %}
-                                                      <td><a href="{% url 'update_order_status' order.order_number %}" 
-                                                              onclick="return confirm('Are you sure you want to UPDATE this product?')">
-                                                              <button class="btn btn-primary btn-sm "> <i class="icon-edit"></i>UPDATE</button></a></td>             
-                                                      {% comment %} <td><input type="submit" onclick="updateStatus()" value="Update"></td> {% endcomment %}
-                                                      <!-- <td class="center">4</td> -->
-                                                      {% endif %}
-                                                      </form>
-                                              </tr>
-                                          {% endfor %}
-                                           
-                                        </tbody>
-                                    </table>
+                                    <form action="" method="POST" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        
+                                        <fieldset class="form-group">
+                                          {% include 'includes/alerts.html' %}
+                                          {{ form | crispy }}
+                                        </fieldset>
+                              
+                                        <div class="form-group">
+                
+                                          <button class="btn btn-success"  style="width: 100%; margin-top: 10px;" type="submit">Update Order Status</button>            
+                                        </div>
+                                          </form>
                                 </div>
                             </div>
                         </div>

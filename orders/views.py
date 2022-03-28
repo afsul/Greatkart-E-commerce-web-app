@@ -272,17 +272,30 @@ def order_complete(request):
     except(Payment.DoesNotExist, Order.DoesNotExist):
         return redirect('home')                        
 
-def cancel_order(request, order_number):
-    order = Order.objects.get(user = request.user, order_number = order_number)
-    
+def user_order_cancel(request,order):
+    order = Order.objects.get(user = request.user, order_number = order)
+    # print(order, 'this is the order')
     if request.method == "POST":
-        status = request.POST['cancel_order']
-        order_number.status = status
-        order.save()   
-        print('order cancelled')
+        status = request.POST['user_order_cancel']
+        # print(status)
     
+    order.status = status
+    order.save()   
+ 
     return redirect('my_orders')
 
+
+def user_order_return(request,order):
+    order = Order.objects.get(user = request.user, order_number = order)
+    # print(order, 'this is the order')
+    if request.method == "POST":
+        status = request.POST['user_order_return']
+        # print(status)
+    
+    order.status = status
+    order.save()
+
+    return redirect('my_orders')
 razorpay_client = razorpay.Client(auth=(settings.RAZORPAY_API_KEY, settings.RAZORPAY_API_SECRET_KEY))
 @csrf_exempt
 @cache_control(max_age=0, no_cache=True, no_store=True, must_revalidate=True)

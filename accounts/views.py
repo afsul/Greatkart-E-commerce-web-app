@@ -77,40 +77,44 @@ def register(request):
 
 
 def new_user_otp_varification(request):
-    if request.method == "POST":
-        otp = request.POST["otp"]
-        mobile = request.session["mobile"]
-        user_mobile = "+91" + mobile
+    try:
+        if request.method == "POST":
+            otp = request.POST["otp"]
+            mobile = request.session["mobile"]
+            user_mobile = "+91" + mobile
 
-        # twilio code for otp generation
-        account_sid = TWILIO_ACCOUNT_SID
-        auth_token = TWILIO_AUTH_TOKEN
-        client = Client(account_sid, auth_token)
+            # twilio code for otp generation
+            account_sid = TWILIO_ACCOUNT_SID
+            auth_token = TWILIO_AUTH_TOKEN
+            client = Client(account_sid, auth_token)
 
-        verification_check = client.verify \
-                           .services(TWILIO_SERVICE_SID) \
-                           .verification_checks \
-                           .create(to=user_mobile, code=otp)
-        print(verification_check.status)
+            verification_check = client.verify \
+                            .services(TWILIO_SERVICE_SID) \
+                            .verification_checks \
+                            .create(to=user_mobile, code=otp)
+            print(verification_check.status)
 
-        # checking otp is valid or not. If valid redirect home
-        if verification_check.status == "approved":
-            messages.success(request, "OTP verified successfully.")
-            user = Account.objects.get(phone_number=mobile)  # user details
-            user.is_active = True
-            user.save()
-            auth.login(request, user)
-            return redirect("home")
-            # try: 
-            #     del request.session["mobile"]
-            # except:
-            #     pass
+            # checking otp is valid or not. If valid redirect home
+            if verification_check.status == "approved":
+                messages.success(request, "OTP verified successfully.")
+                user = Account.objects.get(phone_number=mobile)  # user details
+                user.is_active = True
+                user.save()
+                auth.login(request, user)
+                return redirect("home")
+                # try: 
+                #     del request.session["mobile"]
+                # except:
+                #     pass
 
-            # return redirect("home")
+                # return redirect("home")
+            else:
+                messages.error(request, "Invalid OTP")
+                return render(request, "accounts/new_user_otp_page.html")
         else:
-            messages.error(request, "Invalid OTP")
             return render(request, "accounts/new_user_otp_page.html")
-    else:
+    except:
+        messages.error(request, "Enter a valid OTP")
         return render(request, "accounts/new_user_otp_page.html")
 
     

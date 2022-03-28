@@ -7,6 +7,7 @@ from accounts.models import Account
 from category.forms import CategoryForm
 from category.models import Category
 from django.contrib.auth.decorators import login_required
+from orders.forms import OrderStatusForm
 from orders.models import Order
 from store.forms import ProductForm
 from django.utils.text import slugify
@@ -16,8 +17,11 @@ from store.models import Product
 
 #Home
 def admin_home(request):
-    
-    return render(request, 'admin/admin-home.html')
+    orders = Order.objects.filter(is_ordered=True).order_by('-created_at')
+    context = {
+        'orders':orders
+    }
+    return render(request, 'admin/admin-home.html',context)
 
 
 #Admin Login/logout
@@ -165,6 +169,8 @@ def add_product(request):
                     context = {
                                 'products':products,
                                 'category':category,
+                                'form':form,
+
                             }
                     return render(request, 'admin/products/add_product.html', context)
                 
@@ -215,7 +221,7 @@ def product_delete(request,id):
 
 #Order Management
 def orders_list(request):
-    orders = Order.objects.filter(user=request.user, is_ordered=True).order_by('-created_at')
+    orders = Order.objects.filter(is_ordered=True).order_by('-created_at')
     context = {
         'orders':orders
     }
@@ -232,6 +238,31 @@ def cancel_order_admin(request, id):
         print('order cancelled')
     
     return redirect('orders_list')
+
+@login_required(login_url='admin_login')
+def update_order_status(request, order_number):
+
+    instance = get_object_or_404(Order, order_number = order_number)
+    
+    form = OrderStatusForm(request.POST or None, instance=instance)
+    print(form) 
+    if request.method == "POST":
+        if form.is_valid():
+            form.save()
+            messages.success(request,'Order Status has been updated')
+            return redirect('orders_list')
+    else:  
+        context = {
+            'form': form,
+            'order': instance,
+            }
+        return render(request, 'admin/orders/update_order_status.html',context)
+    context = {
+                'form': form,
+                'order': instance,
+                }
+    return render(request, 'admin/orders/update_order_status.html',context)
+
 
 
 def trial(request):

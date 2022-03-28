@@ -31,7 +31,7 @@ urlpatterns = [
     #Order Management
     path('orders_list/',views.orders_list,name='orders_list'),
     path('cancel_order_admin/<int:id>/',views.cancel_order_admin,name='cancel_order_admin'),
-
+    path('update_order_status/<int:order_number>',views.update_order_status, name='update_order_status'),
 
     # trail
     path('trial',views.trial, name='trail'),

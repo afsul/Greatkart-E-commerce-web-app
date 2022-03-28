@@ -62,6 +62,7 @@
 
                     <form action="{% url 'add_product' %}" , method="POST" , enctype="multipart/form-data">
                         {% csrf_token %}
+                    
 
                         <div class="mb-4">
                             <label for="product_name" class="form-label">Product Name</label>
@@ -251,6 +252,20 @@
                                 }
                             }
 
+
+
+
+
+                            <div class="mb-4 ">
+                                <label class="form-label">Price</label>
+                                <div class="row gx-2">
+                                    <div class="col-4">
+                                        <input required name="price" placeholder="Type" type="number"
+                                            class="form-control">
+                                    </div>
+
+                                </div> <!-- row.// -->
+                            </div>
 
                         </script>
 

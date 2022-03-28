@@ -18856,7 +18856,7 @@ module.exports = function(Chart) {
 			if (time === null) {
 				time = parse(value, me);
 			}
-
+gy
 			if (time !== null) {
 				return me.getPixelForOffset(time);
 			}

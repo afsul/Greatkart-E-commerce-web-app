@@ -34,11 +34,14 @@ class Address(models.Model):
 class Order(models.Model):
 
     STATUS = (
-        ('New', 'New'),
-        ('Accepted', 'Accepted'),
-        ('Completed', 'Completed'),
-        ('Cancelled', 'Cancelled'),
-        ('COD', 'COD'),
+        ('New','New'),
+        ('Accepted','Accepted'),
+        ('Order Shipped','Order Shipped'),
+        ('Order Out for Delivery','Order Out for Delivery'),
+        ('Order Delivered','Order Delivered'),
+        ('Return','Return'),
+        ('Return collected','Return collected'),
+        ('Cancelled','Cancelled'),
         
     )
 
@@ -56,7 +59,7 @@ class Order(models.Model):
     city = models.CharField(max_length=50)
     order_total = models.FloatField()
     tax = models.FloatField()
-    status = models.CharField(max_length=10, choices=STATUS, default='New')
+    status = models.CharField(max_length=50, choices=STATUS, default='New')
     ip = models.CharField(blank=True, max_length=20)
     is_ordered = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
