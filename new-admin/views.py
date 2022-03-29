@@ -3,7 +3,7 @@ from multiprocessing import context
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages,auth
-from accounts.models import Account
+from accounts.models import Account, UserProfile
 from category.forms import CategoryForm
 from category.models import Category
 from django.contrib.auth.decorators import login_required
@@ -12,14 +12,32 @@ from orders.models import Order
 from store.forms import ProductForm
 from django.utils.text import slugify
 from store.models import Product 
+from django.db.models import Count
 
 
 
 #Home
 def admin_home(request):
     orders = Order.objects.filter(is_ordered=True).order_by('-created_at')
+    category_chart = Category.objects.all()
+    # products = Product.objects.get(category__id=category_chart).count()
+    products = Category.objects.annotate(products_count=Count('category_name'))
+    order_count = Order.objects.all().count()
+    users_count = UserProfile.objects.all().count()
+    total_products = Product.objects.all().count()
+    print(users_count)
+    print(products)   
+
+  
+    
     context = {
-        'orders':orders
+        'orders':orders,
+        'category_chart':category_chart,
+        'product_str':category_chart,
+        'order_count':order_count,
+        'users_count':users_count,
+        'total_products':total_products,
+        
     }
     return render(request, 'admin/admin-home.html',context)
 
@@ -262,6 +280,10 @@ def update_order_status(request, order_number):
                 'order': instance,
                 }
     return render(request, 'admin/orders/update_order_status.html',context)
+
+# # charts
+# def doughnut(request):
+#     return render(request, 'admin/admin-home.html')
 
 
 

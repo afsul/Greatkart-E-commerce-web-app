@@ -36,6 +36,9 @@ urlpatterns = [
     # trail
     path('trial',views.trial, name='trail'),
 
+    # # charts
+    # path('doughnut/',views.doughnut,name='doughnut'),
+
 
 
     # path('delete_everything/',views.delete_everything,name='delete_everything')
