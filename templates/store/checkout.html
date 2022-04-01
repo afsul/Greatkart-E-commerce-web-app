@@ -11,10 +11,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h4 class="card-title mb-4">Select Billing Address</h4>
-                            {% if not address %}
-                            <h6> No Addresses found. Please add a shipping address. </h6>
-                            <a href="{% url 'add_address' %}">Add Address</a>
-                            {% else %}
+                        <a href="{% url 'add_address' %}" class="btn btn-primary">Add Address</a>
                             
                             <form action="{% url 'place_order' %}" method="POST">
                                 {% csrf_token %}
@@ -36,7 +33,7 @@
                                     <label for="">Order Note</label>
                                     <textarea class="form-control" name="order_note" rows="2"></textarea>
                                 </div>
-                                {% endif %}
+                                
                     </div>
                 </div>
             </aside>

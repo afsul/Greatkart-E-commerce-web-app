@@ -21,19 +21,20 @@ def admin_home(request):
     orders = Order.objects.filter(is_ordered=True).order_by('-created_at')
     category_chart = Category.objects.all()
     # products = Product.objects.get(category__id=category_chart).count()
-    products = Category.objects.annotate(products_count=Count('category_name'))
+    products_count = Category.objects.annotate(total_products=Count('product'))
+
     order_count = Order.objects.all().count()
     users_count = UserProfile.objects.all().count()
     total_products = Product.objects.all().count()
-    print(users_count)
-    print(products)   
+ 
+    print(products_count)   
 
   
     
     context = {
         'orders':orders,
         'category_chart':category_chart,
-        'product_str':category_chart,
+        'products_count':products_count,
         'order_count':order_count,
         'users_count':users_count,
         'total_products':total_products,
@@ -167,37 +168,42 @@ def add_product(request):
                 print('Entered to add product')
                 if request.method == 'POST':
                     print('Entered to request ot method')
-                    form = ProductForm(request.POST or None, request.FILES or None)
-                    if form.is_valid():
-                        print('form is valid')
-                        product = Product()
-                        product.product_name = form.cleaned_data['product_name']
-                        product.slug = slugify(product.product_name)
-                        product.description = form.cleaned_data['description']
-                        product.price = form.cleaned_data['price']
-                        product.images = form.cleaned_data['images']
-                        product.stock = form.cleaned_data['stock']
-                        product.category = form.cleaned_data['category']
-                        product = Product.objects.create(product_name=product.product_name, slug=product.slug, description=product.description, price=product.price, images= product.images, stock=product.stock,category=product.category)
-                        product.save()
-                        print('products saved')
-                        return redirect(products_list)
-                    products = Product.objects.all()
-                    category = Category.objects.only('category_name')
-                    context = {
-                                'products':products,
-                                'category':category,
-                                'form':form,
+                    product_name = request.POST['product_name']
+                    slug = slugify(product_name)
+                    description = request.POST['description']
+                    price = request.POST['price']
+                    images = request.POST['image1']
+                    # images = request.POST['image2']
+                    # images = request.POST['image3']
+                    # images = request.POST['image4']
+                    stock = request.POST['quantity']
+                    category = Category.objects.get(category_name=request.POST['category'])
+                    cat_id = category.id
+                    print(cat_id,"category ID")
+                    print(category,"category")
+                    product = Product.objects.create(product_name=product_name, slug=slug, description=description, price=price, stock=stock,category=category,images=images)
+                    product.save()
+                    messages.success(request,'Product Added Succesfully')
+                    print('products saved')
+                    return redirect(products_list)
+                    # products = Product.objects.all()
+                    
+                    # context = {
+                    #             'products':products,
+                                
+                                
 
-                            }
-                    return render(request, 'admin/products/add_product.html', context)
+                    #         }
+                    # return render(request, 'admin/products/add_product.html', context)
+                    
                 
                 else:
-                    form = ProductForm(request.POST or None, request.FILES or None)
+                    print('Entered to else case')
+                    categories = Category.objects.only('category_name')
                     context = {
-                                'form':form
+                                'categories': categories,
                             }
-                    return render(request, 'admin/products/add_product.html', context)
+                    return render(request, 'admin/products/add_product.html',context)
                 
 
             

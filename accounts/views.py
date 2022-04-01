@@ -269,7 +269,7 @@ def add_address(request):
             new_address = UserProfile.objects.create(user=user, address_line_1=address_line_1, address_line_2=address_line_2, city=city, state=state, country=country)
             new_address.save()       
 
-            return redirect ('my_address')
+            return redirect ('checkout')
         else:
             form = UserProfileForm()    
             context = {
