@@ -1,0 +1,28 @@
+from django.contrib import admin
+from .models import Coupon,ProductOffer,CategoryOffer
+
+
+# Register your models here.
+
+class CouponAdmin(admin.ModelAdmin):
+    list_display = ['code','valid_from','valid_to','discount','active']
+    list_filter = ['active','valid_from','valid_to']
+    search_fields = ['code']
+
+
+class ProductOfferAdmin(admin.ModelAdmin):
+    list_display = ['code','valid_from','valid_to','discount','is_active']
+    list_filter = ['is_active','valid_from','valid_to']
+    search_fields = ['code']
+
+class CategoryOfferAdmin(admin.ModelAdmin):
+    list_display = ['code','valid_from','valid_to','discount','is_active']
+    list_filter = ['is_active','valid_from','valid_to']
+    search_fields = ['code']
+
+
+
+
+admin.site.register(Coupon,CouponAdmin)
+admin.site.register(ProductOffer,ProductOfferAdmin)
+admin.site.register(CategoryOffer,CategoryOfferAdmin)

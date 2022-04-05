@@ -1,6 +1,10 @@
 from django.db import models
 from accounts.models import Account
+from coupon.models import Coupon
 from store.models import Product
+
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db.models.deletion import SET_NULL
 
 # Create your models here.
 class Payment(models.Model):
@@ -64,6 +68,11 @@ class Order(models.Model):
     is_ordered = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    coupon = models.ForeignKey(Coupon,null=True,on_delete=SET_NULL, blank=True)
+    coupon_use_status= models.BooleanField(default=False)
+    discount_amount = models.FloatField(null=True,blank=True)
+    nett_paid  = models.FloatField(null=True,blank=True)
+    discount   = models.IntegerField(default=0,validators=[MinValueValidator(0),MaxValueValidator(100)])
 
 
     def full_name(self):
@@ -83,7 +92,6 @@ class OrderProduct(models.Model):
     payment = models.ForeignKey(Payment, on_delete=models.SET_NULL, blank=True, null=True)
     user = models.ForeignKey(Account, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    # variations = models.ManyToManyField(Variation, blank=True)
     quantity = models.IntegerField()
     product_price = models.FloatField()
     ordered = models.BooleanField(default=False)

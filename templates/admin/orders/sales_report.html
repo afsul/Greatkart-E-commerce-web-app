@@ -1,0 +1,120 @@
+{% extends 'admin/admin-base.html' %}
+{% load static %}
+{% block content %}
+<div class="container">
+    <div>
+        <div class="dropdown ms-auto">
+            <a href="{% url 'export_csv' %}" 
+               class="btn btn-primary"
+               aria-haspopup="true" aria-expanded="false">CSV</a>
+
+               <button onclick='printPDF()'
+               class="btn btn-primary"
+               aria-haspopup="true" aria-expanded="false">PDF</button>
+         
+        </div>
+              
+        
+    <form method="POST" action="{% url 'sales_report' %}">
+                    {% csrf_token %}
+                  <hr > 
+                  <label for="from_date" style="float: left; "> From </label> 
+                  <input id= "from_date" type="date" name="from_date" placeholder="From Date" class="form-control col-2 m-2" style="float:left" required> 
+                  <label for="to_date" style="float: left;"> To </label> 
+                  <input type="date" id="to_date" name="to_date" class="form-control col-2 m-2" placeholder="To Date" style="float:left" required> 
+                  <button type="submit" class="btn btn-primary m-2">Filter Orders</button> 
+                  
+      </div>
+     </div>
+    
+     {% if not orders %}
+     <div> 
+     <h4 class="text-center mt-5"> No orders found in this range. Please check with some other dates. </h4>
+     </div>
+     {% else %}
+    <div class="card mb-4 mt-4">
+      <div class="card-header">
+          <i class="fas fa-table me-1"></i>
+          Orders
+          {% include 'includes/alerts.html' %}
+          
+      <div class="card-body">
+        <table id="SalesReport" class="display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                          <th>Customer Name</th>
+                          <th>Order No</th>
+                          <th>Order Date</th>
+                          <th>City</th>
+                          <th>State</th>
+                          <th>Order Amount</th>
+                          <th>Status</th>
+                  
+                         
+                    </tr>
+                </thead>
+                <tbody>
+                      {% for order in orders %}
+                        <form action="{% url 'update_order_status' order.order_number %}" method="POST">
+                          {% csrf_token %}
+                        <tr>
+                          <td>{{order.full_name}}</td>
+                          <td>{{order.order_number}}</td>
+                          <td>{{order.created_at}}</td>
+                          <td>{{order.city}}</td>
+                          <td>{{order.state}}</td>
+                          <td>₹ {{order.order_total}}</td>
+                          <td>{{order.status}}</td>
+                          
+                          </form>
+                        </tr>
+                      
+                        {% endfor %}
+    
+                </tbody>
+              
+            </table>
+        </div>
+    </div>
+    {% endif %}
+    
+    </div>
+    
+
+    <script>
+        function printPDF (){
+            var date = new Date().toISOString().slice(0,19);
+            console.log(date)
+            var element = document.getElementById('SalesReport');
+            var opt = {
+              margin:       1,
+              filename:     'SalesReport'+ date +'.pdf',
+              image:        { type: 'jpeg', quality: 0.98 },
+              html2canvas:  { scale: 2 },
+              jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+            
+            html2pdf(element, opt)
+        }
+    </script>   
+    
+      
+    <script>
+      var today = new Date();
+      var dd = String(today.getDate()).padStart(2, '0');
+      var mm = String(today.getMonth() + 1).padStart(2, '0');
+      var yyyy = today.getFullYear();
+    
+      today = yyyy + '-' + mm + '-' + dd;
+      $('#from_date').attr('max', today);
+      $('#to_date').attr('max', today);
+      document.getElementById('from_date').onchange = e => {
+          value = e.target.value
+          $('#to_date').attr('min', value);
+      }
+    
+    
+    </script>
+    
+    
+    {% endblock %}

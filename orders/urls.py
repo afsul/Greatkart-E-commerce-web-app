@@ -9,8 +9,8 @@ urlpatterns = [
    path('proceed_payment/', views.proceed_payment, name='proceed_payment'),
    path('rzp_order_complete/', views.rzp_order_complete, name='rzp_order_complete'),
    path('cod_order_complete/<int:order_number>/',views.cod_order_complete, name='cod_order_complete'),
-     path('user_order_cancel/<int:order>',views.user_order_cancel, name='user_order_cancel'),
-    path('user_order_return/<int:order>',views.user_order_return, name='user_order_return'),
+   path('user_order_cancel/<int:order>',views.user_order_cancel, name='user_order_cancel'),
+   path('user_order_return/<int:order>',views.user_order_return, name='user_order_return'),
    # path('billing_adrress/',views.billing_adrress, name='billing_adrress'),
 
 

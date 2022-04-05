@@ -1,4 +1,5 @@
 
+import csv
 from multiprocessing import context
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -7,34 +8,34 @@ from accounts.models import Account, UserProfile
 from category.forms import CategoryForm
 from category.models import Category
 from django.contrib.auth.decorators import login_required
+from coupon.forms import CategoryOfferForm, CouponApplyForm, ProductOfferForm
+from coupon.models import CategoryOffer, Coupon, ProductOffer
 from orders.forms import OrderStatusForm
-from orders.models import Order
-from store.forms import ProductForm
+from orders.models import Order, OrderProduct
+from store.forms import ProductForm, ProductGalleryForm
 from django.utils.text import slugify
-from store.models import Product 
+from store.models import Product, ProductGallery 
 from django.db.models import Count
+
 
 
 
 #Home
 def admin_home(request):
     orders = Order.objects.filter(is_ordered=True).order_by('-created_at')
-    category_chart = Category.objects.all()
-    # products = Product.objects.get(category__id=category_chart).count()
-    products_count = Category.objects.annotate(total_products=Count('product'))
-
+    categories = Category.objects.all().annotate(item_count=Count('product'))
+    order_status = Order.objects.all().annotate(item_status=Count('status'))
     order_count = Order.objects.all().count()
     users_count = UserProfile.objects.all().count()
     total_products = Product.objects.all().count()
- 
-    print(products_count)   
+    print(categories)   
 
   
     
     context = {
         'orders':orders,
-        'category_chart':category_chart,
-        'products_count':products_count,
+        'order_status':order_status,
+        'categories':categories,
         'order_count':order_count,
         'users_count':users_count,
         'total_products':total_products,
@@ -168,42 +169,38 @@ def add_product(request):
                 print('Entered to add product')
                 if request.method == 'POST':
                     print('Entered to request ot method')
-                    product_name = request.POST['product_name']
-                    slug = slugify(product_name)
-                    description = request.POST['description']
-                    price = request.POST['price']
-                    images = request.POST['image1']
-                    # images = request.POST['image2']
-                    # images = request.POST['image3']
-                    # images = request.POST['image4']
-                    stock = request.POST['quantity']
-                    category = Category.objects.get(category_name=request.POST['category'])
-                    cat_id = category.id
-                    print(cat_id,"category ID")
-                    print(category,"category")
-                    product = Product.objects.create(product_name=product_name, slug=slug, description=description, price=price, stock=stock,category=category,images=images)
-                    product.save()
-                    messages.success(request,'Product Added Succesfully')
-                    print('products saved')
-                    return redirect(products_list)
-                    # products = Product.objects.all()
+                    form = ProductForm(request.POST or None, request.FILES or None)
                     
-                    # context = {
-                    #             'products':products,
-                                
-                                
+                    if form.is_valid():
+                        print('form is valid')
+                        product = Product()
+                        product.product_name = form.cleaned_data['product_name']
+                        product.slug = slugify(product.product_name)
+                        product.description = form.cleaned_data['description']
+                        product.price = form.cleaned_data['price']
+                        product.images = form.cleaned_data['images']
+                        product.stock = form.cleaned_data['stock']
+                        product.category = form.cleaned_data['category']
+                        product = Product.objects.create(product_name=product.product_name, slug=product.slug,mrp_price=product.price, description=product.description, price=product.price, images= product.images, stock=product.stock,category=product.category)
+                        product.save()
+                        print('products saved')
+                        return redirect(products_list)
+                    products = Product.objects.all()
+                    category = Category.objects.only('category_name')
+                    context = {
+                                'products':products,
+                                'category':category,
+                                'form':form,
 
-                    #         }
-                    # return render(request, 'admin/products/add_product.html', context)
-                    
+                            }
+                    return render(request, 'admin/products/add_product.html', context)
                 
                 else:
-                    print('Entered to else case')
-                    categories = Category.objects.only('category_name')
+                    form = ProductForm(request.POST or None, request.FILES or None)
                     context = {
-                                'categories': categories,
+                                'form':form
                             }
-                    return render(request, 'admin/products/add_product.html',context)
+                    return render(request, 'admin/products/add_product.html', context)  
                 
 
             
@@ -291,7 +288,291 @@ def update_order_status(request, order_number):
 # def doughnut(request):
 #     return render(request, 'admin/admin-home.html')
 
+def sales_report(request):    
+    if request.method == "POST":        
+        from_date = request.POST["from_date"]
+        to_date = request.POST["to_date"]
+        orders = Order.objects.filter(created_at__range=(from_date, to_date))
+        context = {
+        'orders':orders,          
+        }
+        return render(request,'admin/orders/sales_report.html',context)
+    
+    else:
+        orders = Order.objects.all().order_by('-order_number')
+        context = {
+            'orders':orders,            
+        }
+        return render(request,'admin/orders/sales_report.html',context)
+
+
+
+def export_csv(request):
+    order_data = Order.objects.all()
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename=GreatKart_Sales_Report'+'.csv'
+    writer = csv.writer(response)   
+    writer.writerow(['Customer Name', 'Order No', 'Order Date', 'City','State','Order Amount','Status'])
+    for data in order_data:
+        writer.writerow([data.full_name, data.order_number, data.created_at,data.city, data.state,data.order_total,data.status])
+    return response
+    
+def pdf_view(request):
+    fs = FileSystemStorage()
+    filename = 'mypdf.pdf'
+    if fs.exists(filename):
+        with fs.open(filename) as pdf:
+            response = HttpResponse(pdf, content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; filename="mypdf.pdf"'
+            return response
+    else:
+        return HttpResponseNotFound('The requested pdf was not found in our server.')
 
 
 def trial(request):
     return render(request,'admin/Trial/Cropper.html')
+
+
+def admin_offers(request):
+    coupon_offers = Coupon.objects.all().order_by('-valid_to')
+    prod_offers = ProductOffer.objects.all().order_by('-valid_to')
+    cat_offers = CategoryOffer.objects.all().order_by('-valid_to')
+
+
+    # paginator = Paginator(coupon_offers, 5) # Show 25 contacts per page.
+    # page_number = request.GET.get('page')
+    # page_obj = paginator.get_page(page_number)
+
+
+    context = {
+        'coupon_offers': coupon_offers,
+        'prod_offers': prod_offers,
+        'cat_offers': cat_offers,
+
+    }
+
+    return render(request,'admin/offer/offers.html',context)    
+
+
+# Category offers
+
+
+def add_cat_offer(request):
+
+    form = CategoryOfferForm(request.POST or None, request.FILES or None)  
+    if request.method == "POST":
+        if form.is_valid():
+            form.save()
+            return redirect('admin_offers')
+        else:
+            messages.error(request,'form not valid')            
+            context = {
+            'form':form
+            }
+            return render(request,'admin/offer/add_cat_offer.html',context)
+    else:
+        context = {
+            'form':form
+        }
+        return render(request,'admin/offer/add_cat_offer.html',context)
+    
+
+
+def edit_cat_offer(request,cat_id):
+    instance = get_object_or_404(CategoryOffer, id=cat_id)
+    form = CategoryOfferForm(request.POST or None, instance=instance)
+  
+
+    if request.method == "POST":
+        if form.is_valid():
+            form.save()
+            messages.success(request,'Offer has been updated')
+            return redirect('admin_offers')
+        else:
+             context = {
+            'form'     : form,
+            'coupon':instance,
+            }
+        return render(request, 'admin/offer/edit_cat_offer.html',context)
+    else:  
+        context = {
+            'form'     : form,
+            'coupon':instance,
+            }
+        return render(request, 'admin/offer/edit_cat_offer.html',context)
+
+
+def activate_cat_offer(request):
+    offer_id = request.GET['catOffId']
+    
+    offer = CategoryOffer.objects.get(id = offer_id)
+ 
+    offer.is_active = True
+    offer.save()
+
+    return redirect('admin_offers')
+
+
+
+def block_cat_offer(request):
+    offer_id = request.GET['catOffId']
+    offer = CategoryOffer.objects.get(id = offer_id)
+    offer.is_active = False
+    offer.save()
+
+    return redirect('admin_offers')
+
+
+
+def delete_cat_offer(request):
+    offer_id = request.GET['catOffId']
+    offer = CategoryOffer.objects.get(id = offer_id)
+    
+    offer.delete()
+
+    return redirect('admin_offers')
+
+#coupon
+def add_coupon(request):
+    form = CouponApplyForm(request.POST or None, request.FILES or None)  
+    if request.method == "POST":
+        if form.is_valid():
+            form.save()
+            return redirect('admin_offers')
+        else:
+            messages.error(request,'form not valid')            
+            context = {
+            'form':form
+            }
+            return render(request,'admin/offer/add_coupon.html',context)
+    else:
+        context = {
+            'form':form
+        }
+        return render(request,'admin/offer/add_coupon.html',context)
+
+
+def edit_coupon(request,c_id):
+    instance = get_object_or_404(Coupon, id=c_id)
+    form = CouponApplyForm(request.POST or None, instance=instance)
+
+
+    if request.method == "POST":
+        if form.is_valid():
+            form.save()
+            messages.success(request,'Product has been updated')
+            return redirect('admin_offers')
+        else:
+             context = {
+            'form'     : form,
+            'coupon':instance,
+            }
+        return render(request, 'admin/offer/edit_coupon_offer.html',context)
+    else:  
+        context = {
+            'form'     : form,
+            'coupon':instance,
+            }
+        return render(request, 'admin/offer/edit_coupon_offer.html',context)
+
+def activate_coupon(request):
+    coupon_id = request.GET['couponId']
+    coupon = Coupon.objects.get(id = coupon_id)
+    coupon.active = True
+    coupon.save()
+
+    return redirect('admin_offers')
+
+
+def block_coupon(request):
+  
+    coupon_id = request.GET['couponId']
+    coupon = Coupon.objects.get(id = coupon_id)
+    coupon.active = False
+    coupon.save()
+
+    return redirect('admin_offers')
+
+
+def delete_coupon(request):
+    coupon_id = request.GET['couponId']
+    coupon = Coupon.objects.get(id = coupon_id)
+    
+    coupon.delete()
+
+    return redirect('admin_offers')
+
+
+# Product offers
+def add_product_offer(request):
+
+    form = ProductOfferForm(request.POST or None, request.FILES or None)  
+    if request.method == "POST":
+        if form.is_valid():
+            form.save()
+            return redirect('admin_offers')
+        else:
+            messages.error(request,'form not valid')            
+            context = {
+            'form':form
+            }
+            return render(request,'admin/offer/add_product_offer.html',context)
+    else:
+        context = {
+            'form':form
+        }
+        return render(request,'admin/offer/add_product_offer.html',context)
+
+
+def edit_product_offer(request,prod_id):
+    instance = get_object_or_404(ProductOffer, id=prod_id)
+    form = ProductOfferForm(request.POST or None, instance=instance)
+
+
+    if request.method == "POST":
+        if form.is_valid():
+            form.save()
+            messages.success(request,'Offer has been updated')
+            return redirect('admin_offers')
+        else:
+             context = {
+            'form'     : form,
+            'coupon':instance,
+            }
+        return render(request, 'admin/offer/edit_product_offer.html',context)
+    else:  
+        context = {
+            'form'     : form,
+            'coupon':instance,
+            }
+        return render(request, 'admin/offer/edit_product_offer.html',context)
+
+
+
+def activate_product_offer(request):
+    offer_id = request.GET['proOffId']
+   
+    offer = ProductOffer.objects.get(id = offer_id)
+
+    offer.is_active = True
+    offer.save()
+
+    return redirect('admin_offers')
+
+
+def block_product_offer(request):
+    offer_id = request.GET['proOffId']
+    offer = ProductOffer.objects.get(id = offer_id)
+    offer.is_active = False
+    offer.save()
+
+    return redirect('admin_offers')
+
+
+def delete_product_offer(request):
+    offer_id = request.GET['proOffId']
+    offer = ProductOffer.objects.get(id = offer_id)
+    
+    offer.delete()
+
+    return redirect('admin_offers')

@@ -36,6 +36,31 @@ urlpatterns = [
     # trail
     path('trial',views.trial, name='trail'),
 
+    #sales report
+    path('sales_report/',views.sales_report, name = 'sales_report'),
+    path('export_csv/',views.export_csv,name="export_csv"),
+
+
+    #offer management
+    path('admin_offers/',views.admin_offers, name='admin_offers'),
+    path('add_coupon/',views.add_coupon, name = 'add_coupon'),
+    path('edit_coupon/<int:c_id>/',views.edit_coupon, name = 'edit_coupon'),    
+    path('activate_coupon/',views.activate_coupon, name = 'activate_coupon'),     
+    path('block_coupon/',views.block_coupon, name = 'block_coupon'),
+    path('delete_coupon/',views.delete_coupon, name = 'delete_coupon'),
+
+    path('add_product_offer/',views.add_product_offer, name = 'add_product_offer'),
+    path('edit_product_offer/<int:prod_id>/',views.edit_product_offer, name = 'edit_product_offer'),    
+    path('activate_product_offer/',views.activate_product_offer, name = 'activate_product_offer'),     
+    path('block_product_offer/',views.block_product_offer, name = 'block_product_offer'),
+    path('delete_product_offer/',views.delete_product_offer, name = 'delete_product_offer'),
+
+    path('add_cat_offer/',views.add_cat_offer, name = 'add_cat_offer'),
+    path('edit_cat_offer/<int:cat_id>/',views.edit_cat_offer, name="edit_cat_offer"),
+    path('activate_cat_offer/',views.activate_cat_offer, name = 'activate_cat_offer'),     
+    path('block_cat_offer/',views.block_cat_offer, name = 'block_cat_offer'),
+    path('delete_cat_offer/',views.delete_cat_offer, name = 'delete_cat_offer'),
+
     # # charts
     # path('doughnut/',views.doughnut,name='doughnut'),
 

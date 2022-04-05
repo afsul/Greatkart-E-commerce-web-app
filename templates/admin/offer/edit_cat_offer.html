@@ -1,0 +1,82 @@
+{% extends 'admin/admin-base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block content %}
+ 
+<head>
+    
+    <title>Products List</title>
+   
+</head>
+    
+         <!-- ============================================================== -->
+     
+        <!-- ============================================================== -->
+        <!-- ============================================================== -->
+        <!-- wrapper  -->
+        <!-- ============================================================== -->
+        
+            <div class="container-fluid  dashboard-content">
+                <!-- ============================================================== -->
+                <!-- pageheader -->
+                <!-- ============================================================== -->
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                        <div class="page-header">
+                            <h2 class="pageheader-title">Products List</h2>
+                            <p class="pageheader-text"></p>
+                            <div class="page-breadcrumb">
+                                <nav aria-label="breadcrumb">
+                                    <ol class="breadcrumb">
+                                        <li class="breadcrumb-item"><a href="#" class="breadcrumb-link">Dashboard</a></li>
+                                        <li class="breadcrumb-item"><a href="#" class="breadcrumb-link">Products</a></li>
+                                        <li class="breadcrumb-item active" aria-current="page">Products List</li>
+                                    </ol>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- ============================================================== -->
+                <!-- end pageheader -->
+                <!-- ============================================================== -->
+                <div class="row">
+                    <!-- ============================================================== -->
+                    <!-- hoverable table -->
+                        <!-- ============================================================== -->
+                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                            <div class="card">
+                                <h5 class="card-header">Products</h5>
+                                <div class="card-body">
+                                    <form action="" method="POST" enctype="multipart/form-data" id="editCatOfferForm" style="margin-bottom: 20px; padding: 30px 20px;">
+                                        {% csrf_token %}
+                                        <fieldset class="form-group">
+                                          
+                                          <legend class="border-bottom mb-4">Edit Category Offer </legend>
+                                          {% include 'includes/alerts.html' %}
+                                    
+                                          {{ form | crispy }}
+                                        </fieldset>
+                                    
+                                        <div class="form-group">
+                                          <div id="image-box" class="image-container"></div>
+                                          <button class="btn btn-outline-info" id="crop-btn" style="width: 100%; margin-top: 10px; display: none;" type="button">Crop</button>
+                                          <button class="btn btn-outline-info" id="confirm-btn" style="width: 100%; margin-top: 10px;" type="submit">Update Offer</button>            
+                                        </div>
+                                          </form>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- ============================================================== -->
+                        <!-- end hoverable table -->
+                    <!-- ============================================================== -->
+                </div>
+        
+       
+    
+    <!-- ============================================================== -->
+    <!-- end main wrapper -->
+    <!-- ============================================================== -->
+    
+    
+    {% endblock %}

@@ -1,5 +1,6 @@
+from pyexpat import model
 from django import forms
-from .models import Product
+from .models import Product, ProductGallery
 
 class ProductForm(forms.ModelForm):
     class Meta:
@@ -11,3 +12,8 @@ class ProductForm(forms.ModelForm):
         for visible in self.visible_fields():
             visible.field.widget.attrs['class'] = 'form-control col-lg-8'
             
+class ProductGalleryForm(forms.ModelForm):
+    class Meta:
+        model: ProductGallery
+        fields = ('image',)
+        

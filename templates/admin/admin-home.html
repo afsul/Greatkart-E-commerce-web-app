@@ -157,10 +157,10 @@
                     const myChart = new Chart(ctx, {
                         type: 'bar',
                         data: {
-                            labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+                            labels: [{% for label in order_status %} '{{ label.status }}', {% endfor %}],
                             datasets: [{
-                                label: '# of Votes',
-                                data: [12, 19, 3, 5, 2, 3],
+                                label:[{% for label in order_status %} '{{ label.status }}', {% endfor %}],
+                                data: [{% for value in order_status %} {{ value.item_status }}, {% endfor %}],
                                 backgroundColor: [
                                     'rgba(255, 99, 132, 0.2)',
                                     'rgba(54, 162, 235, 0.2)',
@@ -202,19 +202,28 @@
                     const donut = document.getElementById('aChart').getContext('2d');
                     var myDoughnutChart = new Chart(donut, {
                         type: 'doughnut',
-                        data: { labels: [{% for key in category_chart %}, '{{key}}', {% endfor %} ],
+                        data: { 
+                            labels: [{% for label in categories %} '{{ label }}', {% endfor %}],
                             datasets: [{
-                                data: [{% for count in products_count %} ,'{{count}}', {% endfor %}],
+                                data: [{% for value in categories %} {{ value.item_count }}, {% endfor %}],
+
                                 backgroundColor: [
                                 'rgba(255, 99, 132, 0.2)',
                                 'rgba(54, 162, 235, 0.2)',
-                                'rgba(255, 206, 86, 0.2)'
+                                'rgba(255, 206, 86, 0.2)',
+                                'rgba(75, 192, 192, 0.2)',
+                                'rgba(153, 102, 255, 0.2)',
+                                'rgba(255, 159, 64, 0.2)'
+                                
                                
                             ],
                             borderColor: [
                             'rgba(255, 99, 132, 1)',
                             'rgba(54, 162, 235, 1)',
-                            'rgba(255, 206, 86, 1)'
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)'
                            
                         ],
                         borderWidth: 1

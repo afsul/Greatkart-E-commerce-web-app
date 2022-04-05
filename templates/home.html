@@ -27,20 +27,46 @@
 </header><!-- sect-heading -->
 
 
-<div class="row">
+<div class="row" style="margin-bottom:30px">
 	{% for product in products %}
+	
 	<div class="col-md-3">
-		<div class="card card-product-grid">
-			<a href="{{ product.get_url }}" class="img-wrap"> <img src="{{ product.images.url }}"> </a>
+		<div class="card card-product-grid pt-2" style="height:20rem"> 
+			<a href="{{product.get_url}}" class="img-wrap"> <img src="{{product.images.url}}"> 
+				<!-- <a onclick="whishList('{{product.id}}')"  class="action wishlist" title="Wishlist"><i class="pe-7s-like"></i></a> -->
+				{% if product.price < product.mrp_price %}
+				<div class="card-img-overlay" id="product_image_overlay">
+					<div class="text-left">
+					<img class="img-fluid" style="width:3rem;" src="{% static 'images/icons/special_offer1.png' %}" alt="offer">
+					</div>     
+				  </div>
+				  {% else %}
+				  <div class="card-img-overlay" id="product_image_overlay">
+				  </div>
+				  {% endif %}
+			</a>
+
+			
+			
 			<figcaption class="info-wrap">
-				<a href="{{ product.get_url }}" class="title">{{ product.product_name }}</a>
-				<div class="price mt-1">$ {{ product.price }}</div> <!-- price-wrap.// -->
-				<a href="{% url  'add_cart' product.id	 %}" class="btn btn-primary">Buy Now</a>
+				<a href="{{product.get_url}}"  class="title">{{product.product_name}}</a>
+				
+				{% if product.price < product.mrp_price %}
+				
+				<div class="price mt-1"><small><s> $ {{product.mrp_price}}</s></small> <small><i> {{product.discount_percentage}}% off ! </i></small><span style="font-size: large; color:dark" class="ml-2"> $ {{product.price}} </span></div> <!-- price-wrap.// -->
+				{% else %}
+				<div class="price mt-1" style="font-size: large; color:dark">$ {{product.price}}</div> <!-- price-wrap.// -->
+				
+				{% endif %}
 			</figcaption>
+			<a href="{{product.get_url}}" class="btn btn-primary btn-sm m-1" > <i class="fa fa-shopping-cart"></i> Add to cart</a>
+							<!-- <a class="btn btn-outline-info btn-sm m-1" id="hmAddtoWishlistBtn" onclick="wishList('{{product.id}}')"> <i class="fa fa-heart" ></i> Add to Wish</a> -->
+
+
 		</div>
-	</div> <!-- col.// -->	
+	</div> <!-- col.// -->
 	{% endfor %}
-</div> <!-- row.// -->
+</div><!-- container // -->
 </div><!-- container // -->
 </section>
 <!-- ========================= SECTION  END// ========================= -->

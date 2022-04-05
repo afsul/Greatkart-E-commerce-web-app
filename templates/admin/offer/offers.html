@@ -1,0 +1,529 @@
+{% extends 'admin/admin-base.html' %}
+{% load static %}
+{% block content %}
+ 
+<head>
+    
+    <title>Products List</title>
+   
+</head>
+    
+         <!-- ============================================================== -->
+     
+        <!-- ============================================================== -->
+        <!-- ============================================================== -->
+        <!-- wrapper  -->
+        <!-- ============================================================== -->
+        
+            <div class="container-fluid  dashboard-content">
+                <!-- ============================================================== -->
+                <!-- pageheader -->
+                <!-- ============================================================== -->
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                        <div class="page-header">
+                            <h2 class="pageheader-title">Offer Management</h2>
+                            <p class="pageheader-text"></p>
+                            <div class="page-breadcrumb">
+                                <nav aria-label="breadcrumb">
+                                    <ol class="breadcrumb">
+                                        <li class="breadcrumb-item"><a href="#" class="breadcrumb-link">Dashboard</a></li>
+                                        <li class="breadcrumb-item"><a href="#" class="breadcrumb-link">Offer Management</a></li>
+                                        <li class="breadcrumb-item active" aria-current="page">View Offers</li>
+                                    </ol>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- ============================================================== -->
+                <!-- end pageheader -->
+                <!-- ============================================================== -->
+                <div class="row">
+                    <!-- ============================================================== -->
+                    <!-- hoverable table -->
+                        <!-- ============================================================== -->
+                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <i class="fas fa-table me-1"></i>
+                                    Cuopon Offers
+                                </div>
+                                <div class="card-body">
+                                    <table id="datatablesSimple" class="table table-bordered data-table table-hover">
+                                        <a href="{% url 'add_coupon' %}" class="btn btn-success mb-3">Add</a>
+
+                                        <thead>
+                                            <tr>
+                                              <th>Coupon Code</th>
+                                                <th>Valid From</th>
+                                                <th>Valid To</th>
+                                                <th>Discount</th>
+                                                <th>Edit</th>
+                                              <th scope="col">Block/Activate</th>
+                                              <!-- <th>Edit User</th> -->
+                                              <th scope="col">Delete Coupon</th>
+                                            </tr>
+                                        </thead>
+                                       
+                                        <tbody>
+                                       
+                                             {% for offer in coupon_offers %}
+                                          <tr>
+                                        
+                                             <td>{{offer.code}}</td>
+                                            <td>{{offer.valid_from }}</td>
+                                            <td>{{offer.valid_to }}</td>
+                                            <td>{{offer.discount}}</td>
+                                            <td> <a href="{% url 'edit_coupon' offer.id %}" class="btn btn-primary">Edit</a></td>
+                                            {% if offer.active %}
+                                            <td><a class="confirm-block" id="blockCouponBtn"
+                                              onclick="blockCoupon('{{offer.id}}')">
+                                              <button class="btn btn-warning"> <i class="icon-ban-circle"></i>Deactivate</button> </a></td>
+                                            {% else %}
+                                            <td><a class="confirm-activate" id="actCouponBtn" onclick="actCoupon('{{offer.id}}')"><button class="btn btn-success"> <i class="icon-play"></i>Activate</button></a></td>
+                                            {% endif %}
+                                         
+                                            <td><a  class="confirm-delete" id="delCouponBtn" onclick="delCoupon('{{offer.id}}')" >  <button class="btn btn-danger"> <i class="icon-trash"></i> Delete </button></a></td>
+                                          
+                                          </tr>
+                                         
+                                          {% endfor %}       
+                                        </tbody>
+                                    </table>
+                                </div>
+                              </div>
+                              
+                              <!-- experimenting below this -->
+                              
+                              <div class="card mb-3">
+                                <div class="card-header">
+                                    <i class="fas fa-table me-1"></i>
+                                    Category Offers
+                                </div>
+                              <div  class="card-body">
+                                <table class="table table-bordered data-table table-hover">
+                                    <a href="{% url 'add_cat_offer' %}" class="btn btn-success mb-3">Add</a>
+
+                                  <thead>
+                                    <tr>
+                                      <th>Offer Code</th>
+                                      <th>Category</th>
+                                      <th>Valid From</th>
+                                      <th>Valid To</th>
+                                      <th>Discount</th>
+                                      <th>Edit</th>
+                                      <th>Block/Activate</th>
+                                        <!-- <th>Edit User</th> -->
+                                        <th>Delete</th>
+                                      <!-- <th>Offer Active</th> -->
+                                      
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {% for offer in cat_offers %}
+                                    <tr>
+                                      
+                                      <td>{{offer.code}}</td>
+                                      <td>{{offer.category_id.category_name}}</td>
+                                      <td>{{offer.valid_from }}</td>
+                                      <td>{{offer.valid_to }}</td>
+                                      <td>{{offer.discount}}</td>
+                                      <td> <a href="{% url 'edit_cat_offer' offer.id %}" class="btn btn-primary">Edit</a></td>
+                                      {% if offer.is_active %}
+                                      <td><a class="confirm-block" id="blockCatOfferBtn"
+                                        onclick="blockCatOffer('{{offer.id}}')">
+                                        <button class="btn btn-warning"> <i class="icon-ban-circle"></i>Deactivate</button> </a></td>
+                                      {% else %}
+                                      <td><a class="confirm-activate" id="actCatOfferBtn" onclick="actCatOffer('{{offer.id}}')"><button class="btn btn-success"> <i class="icon-play"></i>Activate</button></a></td>
+                                      {% endif %}
+                                      <!-- <td><a href="admin_user_edit/{{user.id}}" onclick="return confirm('Are you sure you want to EDIT this user?')"><button class="btn btn-primary "> <i class="icon-edit"></i> Edit</button></a></td> -->
+                                      <td><a  class="confirm-delete" id="delCatOfferBtn" onclick="delCatOffer('{{offer.id}}')" >  <button class="btn btn-danger"> <i class="icon-trash"></i> Delete </button></a></td>
+                                      <!-- <td class="center">4</td> -->
+                                      
+                                    </tr>
+                                    {% endfor %}
+                                 
+                                    
+                                  </tbody>
+                                </table>
+                              </div>
+                              </div>
+                              
+                              
+                              <div class="card mb-5">
+                                <div class="card-header">
+                                    <i class="fas fa-table me-1"></i>
+                                    Product Offers
+                                </div>
+                                  <div  class="card-body">
+                                    <table class="table table-bordered data-table table-hover">
+                                        <a href="{% url 'add_product_offer' %}" class="btn btn-success mb-3">Add</a>
+
+                                      <thead>
+                                        <tr>
+                                          <th>Offer Code</th>
+                                          <th>Product</th>
+                                          <th>Valid From</th>
+                                          <th>Valid To</th>
+                                          <th>Discount</th>
+                                          <th>Edit</th>
+                                          <!-- <th>Offer Active</th> -->
+                                            <th>Block/Activate</th>
+                                            <!-- <th>Edit User</th> -->
+                                            <th>Delete</th>
+                                          <!-- <th>Offer Active</th> -->
+                                          
+                                          
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {% for offer in prod_offers %}
+                                        <tr>
+                                          
+                                          <td>{{offer.code}}</td>
+                                          <td>{{offer.product_id.product_name}}</td>
+                              
+                                          <td>{{offer.valid_from }}</td>
+                                          <td>{{offer.valid_to }}</td>
+                                          <td>{{offer.discount}} </td>
+                                          <td> <a href="{% url 'edit_product_offer' offer.id %}" class="btn btn-primary">Edit</a></td>
+                              
+                                        {% if offer.is_active %}
+                                          <td><a class="confirm-block" id="blockProdOfferBtn"
+                                            onclick="blockProOffer('{{offer.id}}')">
+                                            <button class="btn btn-warning"> <i class="icon-ban-circle"></i> Block </button> </a></td>
+                                          {% else %}
+                                          <td><a class="confirm-activate" id="actProdOfferBtn" onclick="actProOffer('{{offer.id}}')"><button class="btn btn-success"> <i class="icon-play"></i> Activate Offer</button></a></td>
+                                          {% endif %}
+                                          <!-- <td><a href="admin_user_edit/{{user.id}}" onclick="return confirm('Are you sure you want to EDIT this user?')"><button class="btn btn-primary "> <i class="icon-edit"></i> Edit</button></a></td> -->
+                                          <td><a  class="confirm-delete" id="delProOfferBtn" onclick="delProOffer('{{offer.id}}')" >  <button class="btn btn-danger"> <i class="icon-trash"></i> Delete </button></a></td>
+                                          <!-- <td class="center">4</td> -->
+                                          
+                                        </tr>
+                                        {% endfor %}
+                                    
+                                        
+                                      </tbody>
+                                    </table>
+                                  </div>
+                            </div>
+                        </div>
+                        <!-- ============================================================== -->
+                        <!-- end hoverable table -->
+                    <!-- ============================================================== -->
+                </div>
+        
+       
+    
+    <!-- ============================================================== -->
+    <!-- end main wrapper -->
+    <!-- ============================================================== -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+<script>
+
+function blockCoupon(couponId){
+  var data = {'couponId' : couponId}
+
+  Swal.fire({
+    title: 'Are you sure?',
+    text: "This will block the offer related to this coupon.",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Deactivate'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      $.ajax({
+        method: "GET",
+        url: "{% url 'block_coupon' %}",
+        data : data,
+        success:function(response){
+          Swal.fire(
+            'Coupon Deactivated',
+            'The selected coupon successfully deactivated.',
+            'success'
+          )
+        location.reload();
+
+        }
+      })
+     
+    }
+  })
+}   
+
+
+function actCoupon(couponId){
+  var data = { 'couponId' : couponId}
+  
+  Swal.fire({
+    title: 'Activate this offer',
+    text: "You are going to activate this offer",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Activate User.!'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      $.ajax({
+        method: "GET",
+        url: "{% url 'activate_coupon' %}",
+        data : data,
+        success:function(response){
+         
+          Swal.fire(
+            'Coupon Activated',
+            'Coupon has been successfully activated.',
+            'success'
+          )
+        location.reload();
+
+        }
+      })
+     
+    }
+  })
+}
+
+
+function delCoupon(couponId){
+  var data = { 'couponId' : couponId}
+  
+  Swal.fire({
+    title: 'Delete this offer !',
+    text: "Are you sure? You will not be able to revert this..",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Delete Coupon.'
+  }).then((result) => {
+    if (result.isConfirmed) {
+        console.log("confirm delete")
+      $.ajax({
+        method: "GET",
+        url: "{% url 'delete_coupon'  %}",
+        data : data,
+        success:function(response){
+         
+          Swal.fire(
+            'User Deleted',
+            'User has been successfully Deleted.',
+            'success'
+          )
+        location.reload();
+
+        }
+      })
+     
+    }
+  })
+}
+
+    
+function blockCatOffer(catOffId){
+    var data = {'catOffId' : catOffId}
+   
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "This will block the offer related to this coupon.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Deactivate'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        $.ajax({
+          method: "GET",
+          url: "{% url 'block_cat_offer' %}",
+          data : data,
+          success:function(response){
+            Swal.fire(
+              'Coupon Deactivated',
+              'The selected coupon successfully deactivated.',
+              'success'
+            )
+          location.reload();
+  
+          }
+        })
+       
+      }
+    })
+  }
+  
+  
+  function actCatOffer(catOffId){
+    var data = { 'catOffId' : catOffId}
+    
+    Swal.fire({
+      title: 'Activate this offer',
+      text: "You are going to activate this offer",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Activate'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        $.ajax({
+          method: "GET",
+          url: "{% url 'activate_cat_offer' %}",
+          data : data,
+          success:function(response){
+           
+            Swal.fire(
+              'Offer Activated',
+              'Offer has been successfully activated.',
+              'success'
+            )
+          location.reload();
+  
+          }
+        })
+       
+      }
+    })
+  }
+  
+  function delCatOffer(catOffId){
+    var data = { 'catOffId' : catOffId}
+    
+    Swal.fire({
+      title: 'Delete this offer !',
+      text: "Are you sure? You will not be able to revert this..",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Delete'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        $.ajax({
+          method: "GET",
+          url: "{% url 'delete_cat_offer' %}",
+          data : data,
+          success:function(response){
+           
+            Swal.fire(
+              'Offer Deleted',
+              'Offer has been successfully Deleted.',
+              'success'
+            )
+          location.reload();
+  
+          }
+        })
+       
+      }
+    })
+  }
+  
+  function blockProOffer(proOffId){
+    var data = {'proOffId' : proOffId}
+   
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "This will block the offer related to this coupon.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Deactivate'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        $.ajax({
+          method: "GET",
+          url: "{% url 'block_product_offer' %}",
+          data : data,
+          success:function(response){
+            Swal.fire(
+              'Coupon Deactivated',
+              'The selected coupon successfully deactivated.',
+              'success'
+            )
+          location.reload();
+  
+          }
+        })
+       
+      }
+    })
+  }
+  
+  
+  function actProOffer(proOffId){
+    var data = { 'proOffId' : proOffId}
+    
+    Swal.fire({
+      title: 'Activate this offer',
+      text: "You are going to activate this offer",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Activate'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        $.ajax({
+          method: "GET",
+          url: "{% url 'activate_product_offer' %}",
+          data : data,
+          success:function(response){
+           
+            Swal.fire(
+              'Offer Activated',
+              'Offer has been successfully activated.',
+              'success'
+            )
+          location.reload();
+  
+          }
+        })
+       
+      }
+    })
+  }
+  
+  function delProOffer(proOffId){
+    var data = { 'proOffId' : proOffId}
+    
+    Swal.fire({
+      title: 'Delete this offer !',
+      text: "Are you sure? You will not be able to revert this..",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Delete'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        $.ajax({
+          method: "GET",
+          url: "{% url 'delete_product_offer' %}",
+          data : data,
+          success:function(response){
+           
+            Swal.fire(
+              'Offer Deleted',
+              'Offer has been successfully Deleted.',
+              'success'
+            )
+          location.reload();
+  
+          }
+        })
+       
+      }
+    })
+  }
+  </script>
+    {% endblock %}

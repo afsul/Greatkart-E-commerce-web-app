@@ -5,6 +5,8 @@ from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import redirect, render
 from accounts.models import UserProfile
 from carts.models import CartItem
+from coupon.forms import CouponApplyForm
+from coupon.models import Coupon
 from greatkart import settings
 from greatkart.settings import RAZORPAY_API_KEY, RAZORPAY_API_SECRET_KEY
 from orders.models import Address, Order, OrderProduct, Payment
@@ -64,7 +66,7 @@ def place_order(request, total=0, quantity=0,):
 
     tax = (5 * total)/100
     grand_total = total + tax 
-
+    form = CouponApplyForm()
     if request.method == 'POST':
         address_id = request.POST['ship_address']
         address = UserProfile.objects.filter(id = address_id, user = request.user.id)
@@ -106,6 +108,9 @@ def place_order(request, total=0, quantity=0,):
         order = Order.objects.get(user=current_user, is_ordered=False, order_number=order_number)
         user = request.user
 
+       
+    
+
         context = {
             'user':user,
             'order' : order,
@@ -125,6 +130,7 @@ def place_order(request, total=0, quantity=0,):
             
 def payments(request):
     body = json.loads(request.body)
+    print(body)
     order = Order.objects.get(user=request.user, is_ordered=False, order_number=body['orderID'])
 
     #store transaction details in payment model
@@ -132,12 +138,12 @@ def payments(request):
         user = request.user,
         payment_id = body['transID'],
         payment_method = body['payment_method'],
-        amount_paid = order.order_total,
+        amount_paid = body['paid_amount'],
         status = body['status'],
 
     )
     payment.save()
-
+    order.nett_paid = body['paid_amount']
     order.payment = payment
     order.is_ordered = True
     order.save()
@@ -171,27 +177,180 @@ def payments(request):
             'transID': payment.payment_id,
         }
     return JsonResponse(data)
+def proceed_payment(request):
+   
+    order_id = request.POST['ord_no']
+    # print(order_id)
+    now = datetime.now()
+    order = Order.objects.get(user = request.user, is_ordered = False, order_number = order_id)
+    code = order.coupon
+    # print(code,'- this is coupon.')
+    # print(order)
+    try:
+        coupon = Coupon.objects.get(code__exact = code, valid_from__lte=now, valid_to__gte=now, active = True)
+        if coupon:
+            # print('coupon available',coupon)
+            discount = coupon.discount
+            # print(discount)
+            order_no = order.order_number
+            
+            # print(order_no)
+            # print('got order')
+            current_user = request.user
+            cart_items = CartItem.objects.filter(user = current_user)
+            grand_total = 0
+            tax = 0
+            total = 0
+            quantity = 0
+            for cart_item in cart_items:
+                total   += (cart_item.product.price * cart_item.quantity)
+                quantity += cart_item.quantity
+            tax = round((5 * total)/100,2)
+            grand_total = round(total + tax,2)
+        
+            discount_amount = grand_total * discount/100
+            # print(discount_amount,'discount amount')
+            total_after_coupon = round(float(grand_total - discount_amount),2)
+            # print(grand_total,'total')
+            # print(total_after_coupon,'amount after discount')
+            order.discount_amount = discount_amount
+            order.nett_paid = total_after_coupon
+            order.coupon_use_status = True
+            
+            order.save()
+            
+            
+            first_name = order.first_name
+            last_name = order.last_name
+            phone = order.phone
+            email = order.email
+            total = order.nett_paid * 100
+            order_number = order.order_number
+            # print(first_name,'first name')
+            # print(total,'total')
+            # print(order_number,"order number")
 
+            
+
+            data = { 
+                "amount": total, 
+                "currency": "INR", 
+                "receipt": order_number,
+                
+                }
+            
+            payment = razorpay_client.order.create(data=data)
+            context = {
+                'payment':payment,
+                'order':order,
+                'total':total,
+                'first_name' :first_name,
+                'last_name' :last_name,
+                'phone' :phone,
+                'email' :email,
+                "order_number":order_number,
+                
+            }
+            
+            # return render(request,'orders/proceed_payment.html',context)
+            return JsonResponse({'payment':payment})
+    except:
+        # here is the else case
+        order = Order.objects.get(user = request.user, is_ordered = False, order_number = order_id)
+        first_name = order.first_name
+        last_name = order.last_name
+        phone = order.phone
+        email = order.email
+        total = order.order_total * 100
+        order_number = order.order_number
+        # print(first_name,'first name')
+        # print(total,'total')
+        # print(order_number,"order number")
+
+        
+
+        data = { 
+            "amount": total, 
+            "currency": "INR", 
+            "receipt": order_number,
+            
+            }
+        
+        payment = razorpay_client.order.create(data=data)
+        context = {
+            'payment':payment,
+            'order':order,
+            'total':total,
+            'first_name' :first_name,
+            'last_name' :last_name,
+            'phone' :phone,
+            'email' :email,
+            "order_number":order_number,
+            
+        }
+        # print("***********",context)
+        return JsonResponse({'payment':payment})
+
+    
+    
+    
 
 
 #COD
 def cod_order_complete(request,order_number):
     order_number = order_number
+
+    now = datetime.now()
     order = Order.objects.filter(user = request.user, is_ordered = False)
-    
+    code = order.coupon
     try:
-        order = Order.objects.get(user = request.user, is_ordered = False, order_number = order_number)
-        payment = Payment(
-            user = request.user,
-            payment_id = "COD - Payement pending",  
-            payment_method = "COD",
-            amount_paid = order.order_total,
-            status = "COD",
-            )
-        payment.save()
-        order.payment= payment 
-        order.is_ordered = True
-        order.save()
+        order = Order.objects.get(user = request.user, is_ordered = False)
+        code = order.coupon
+        # print(code,'checking coupon')
+        coupon = Coupon.objects.get(code__exact = code, valid_from__lte=now, valid_to__gte=now, active = True)
+        # print('coupon available')
+        if coupon:
+            # print('coupon available',coupon)
+            discount = coupon.discount
+            # print(discount)
+            order_no = order.order_number            
+            # print(order_no)
+            # print('got order')
+            current_user = request.user
+            cart_items = CartItem.objects.filter(user = current_user)
+            grand_total = 0
+            tax = 0
+            total = 0
+            quantity = 0
+            for cart_item in cart_items:
+                total   += (cart_item.product.price * cart_item.quantity)
+                quantity += cart_item.quantity
+            tax = round((5 * total)/100,2)
+            grand_total = round(total + tax,2)
+        
+            discount_amount = round(grand_total * discount/100,2)
+            # print(discount_amount,'discount amount')
+            total_after_coupon = round(float(grand_total - discount_amount),2)
+            # print(grand_total,'total')
+            # print(total_after_coupon,'amount after discount')
+            order.discount_amount = discount_amount
+            order.nett_paid = total_after_coupon
+            order.coupon_use_status = True
+            order.save()
+
+            payment = Payment(
+                user = request.user,
+                payment_id = "COD - Payement pending",
+                payment_method = "COD",
+                amount_paid = order.nett_paid,
+                status = "COD",
+                )
+            payment.save()
+            order.payment= payment 
+            order.is_ordered = True
+            order.coupon_use_status = True
+            
+            order.save()
 
         cart_items = CartItem.objects.filter(user = request.user)
         for item in cart_items:
@@ -297,56 +456,6 @@ def user_order_return(request,order):
 
     return redirect('my_orders')
 razorpay_client = razorpay.Client(auth=(settings.RAZORPAY_API_KEY, settings.RAZORPAY_API_SECRET_KEY))
-@csrf_exempt
-@cache_control(max_age=0, no_cache=True, no_store=True, must_revalidate=True)
-def proceed_payment(request):
-    print("call received")
-   
-    order_id = request.POST['ord_no']
-    print(order_id)
-    
-    
-
-  
-        # here is the else case
-    order = Order.objects.get(user = request.user, is_ordered = False, order_number = order_id)
-    first_name = order.first_name
-    last_name = order.last_name
-    phone = order.phone
-    email = order.email
-    total = order.order_total * 100
-    order_number = order.order_number
-        # print(first_name,'first name')
-        # print(total,'total')
-        # print(order_number,"order number")
-
-        
-
-    data = { 
-            "amount": total, 
-            "currency": "INR", 
-            "receipt": order_number,
-            
-            }
-        
-    payment = razorpay_client.order.create(data=data)
-    context = {
-            'payment':payment,
-            'order':order,
-            'total':total,
-            'first_name' :first_name,
-            'last_name' :last_name,
-            'phone' :phone,
-            'email' :email,
-            "order_number":order_number,
-            
-        }
-        # print("***********",context)
-    return JsonResponse({'payment':payment})
-
-        # return render(request,'orders/proceed_payment.html',context)
-
-
 
 @cache_control(max_age=0, no_cache=True, no_store=True, must_revalidate=True)
 def rzp_order_complete(request):

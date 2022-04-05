@@ -90,10 +90,26 @@
                   <dt>Grand Total:</dt>
                   <dd class="text-right text-dark b"><strong>$ {{ grand_total }}</strong></dd>
                 </dl>
+                <span id="discountsID" hidden>
+                  <dl class="dlist-align">
+                    <dt>Discount amount:</dt>
+                    <dd class="text-right" id="discAmount"> </dd>
+                    </dl>
+                  <dl class="dlist-align">
+                    <dt>Nett Payable:</dt>
+                    <dd class="text-right text-dark b" id="discGrandTotal" style="color: darkgreen;"> <strong> amount </strong></dd>
+                </dl>
+                </span>
+              
                 <hr>
                 <p class="text-center mb-3">
                     <img src="{% static 'images/misc/payments.png' %}" height="26">
                 </p>
+                Payment</a> -->
+                <input type="text" id="couponInp" class="form-control mb-2" >
+                <span id="couponAlert" style="color:orange;" class="text-center"></span>
+                <span id="couponSuccessAlert" style="color:green;" class="text-center"></span>
+                <button onclick="claimCoupon()" class="btn btn-primary btn-block mb-2 mt-2" id="claimButton">Claim Coupons</button>
                 <div id="paypal-button-container">
                     <!--Pay pal button will load  -->
                 </div>
@@ -117,87 +133,7 @@
     
 
 
-    <script>
-
-        function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                // Does this cookie string begin with the name we want?
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-    
-        var amount = "{{ grand_total }}"
-        var url = "{% url 'payments' %}"
-        var csrftoken = getCookie('csrftoken');
-        var orderID = "{{order.order_number}}"
-        var payment_method = 'PayPal'
-        var redirect_url = "{% url 'order_complete' %}"
-        // Render the PayPal button into #paypal-button-container
-        paypal.Buttons({
-    
-            style: {
-                color: 'blue',
-                shape: 'rect',
-                label: 'pay',
-                height: 40
-            },
-    
-            // Set up the transaction
-            createOrder: function(data, actions) {
-                return actions.order.create({
-                    purchase_units: [{
-                        amount: {
-                            value: amount,
-                        }
-                    }]
-                });
-            },
-    
-            // Finalize the transaction
-            onApprove: function(data, actions) {
-                return actions.order.capture().then(function(details) {
-                    // Show a success message to the buyer
-                    console.log(details);
-                    sendData();
-                    function sendData(){
-                        fetch(url, {
-                            method : "POST",
-                            headers: {
-                                "Content-type": "application/json",
-                                "X-CSRFToken": csrftoken,
-                            },
-                            body: JSON.stringify({
-                                orderID: orderID,
-                                transID: details.id,
-                                payment_method: payment_method,
-                                status: details.status,
-                            }),
-                        })
-                      .then((response) => response.json())
-                      .then((data) => {
-                            window.location.href = redirect_url + '?order_number='+data.order_number+'&payment_id='+data.transID;
-                        });
-                    }
-                });
-            }
-    
-    
-        }).render('#paypal-button-container');
-    </script>
-     
-<!-- razorpay -->
-<!-- Razorpay -->
-
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 
  <script>
@@ -252,10 +188,10 @@
   function makeRazorPayment(order_id, amount, ord_no){
     var redirect_url = "{% url 'rzp_order_complete' %}"
     var options = {
-    "key": "rzp_test_N9YYgyoIQNNsad", // Enter the Key ID generated from the Dashboard
+    "key": "rzp_test_lNmw3SKtFttNHU", // Enter the Key ID generated from the Dashboard
     "amount": amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
     "currency": "INR",
-    "name": "IndiaKart Payment",
+    "name": "FirstKart Payment",
     "description": "Test Transaction",
     "image": "https://example.com/your_logo",
     "order_id": order_id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 2
@@ -325,6 +261,179 @@ rzpPayment(ord_no);
 </script>
 
 
-<!-- Razorpay -->
+
+
+
+<script>
+
+  function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+          const cookies = document.cookie.split(';');
+          for (let i = 0; i < cookies.length; i++) {
+              const cookie = cookies[i].trim();
+              // Does this cookie string begin with the name we want?
+              if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                  break;
+              }
+          }
+      }
+      return cookieValue;
+  }
+  var disAmount 
+  var amount = "{{ grand_total }}"
+  var totalAmount;
+ 
+  
+  amount = amount
+  var url = "{% url 'payments' %}"
+  var csrftoken = getCookie('csrftoken')
+  var orderID = "{{order.order_number}}"
+  var payment_method = 'Paypal'
+  var redirect_url = "{% url 'order_complete' %}"
+  // Render the PayPal button into #paypal-button-container
+  paypal.Buttons({
+    style: {
+      color:  'blue',
+      shape:  'rect',
+      label:  'pay',
+      height: 40
+    },
+    // Set up the transaction
+    createOrder: function (data, actions) {
+      if(disAmount){
+        totalAmount = disAmount
+      }else{
+        totalAmount = amount
+      }
+      return actions.order.create({
+        purchase_units: [{
+          amount: {
+            value: totalAmount
+          }
+        }]
+      });
+    },
+
+    // Finalize the transaction
+    onApprove: function (data, actions) {
+      return actions.order.capture().then(function (orderData) {
+        // Successful capture! For demo purposes:
+        console.log('orderData');
+        console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
+        var transaction = orderData.purchase_units[0].payments.captures[0];
+        // alert('Transaction ' + transaction.status + ': ' + transaction.id + '\n\nSee console for all available details');
+        sendData();
+
+            let timerInterval
+              Swal.fire({
+                title: 'Thanks for the order!',
+                html: 'Your order confirmation will be generated in <b></b> milliseconds.',
+                timer: 6000,
+                timerProgressBar: true,
+                didOpen: () => {
+                  Swal.showLoading()
+                  const b = Swal.getHtmlContainer().querySelector('b')
+                  timerInterval = setInterval(() => {
+                    b.textContent = Swal.getTimerLeft()
+                  }, 100)
+                },
+                willClose: () => {
+                  clearInterval(timerInterval)
+                }
+              }).then((result) => {
+                /* Read more about handling dismissals below */
+                if (result.dismiss === Swal.DismissReason.timer) {
+                  console.log('I was closed by the timer')
+                }
+              })
+
+
+
+        function sendData(){
+          fetch(url, {  
+            method : "POST",
+            headers : {
+              "Content-type": "application/json",
+              "X-CSRFToken" :csrftoken,
+            },
+            body: JSON.stringify({
+              orderID:orderID,
+              transID:orderData.id,
+              payment_method:payment_method,
+              status: orderData.status,
+              paid_amount:totalAmount,
+
+
+            }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              window.location.href = redirect_url + '?order_number='+data.order_number+'&payment_id='+data.transID; 
+              
+
+
+
+            });
+        }
+
+        // Replace the above to show a success message within this page, e.g.
+        // const element = document.getElementById('paypal-button-container');
+        // element.innerHTML = '';
+        // element.innerHTML = '<h3>Thank you for your payment!</h3>';
+        // Or go to another URL:  actions.redirect('thank_you.html');
+      });
+    }
+
+
+  }).render('#paypal-button-container');
+
+
+
+  function claimCoupon(){
+    document.getElementById('couponAlert').innerText = ""
+    console.log("I am here")  
+    /* alert("coupon claim button clicked") */
+    var code = document.getElementById('couponInp').value
+     /* alert(code) */
+    var data = {
+      'code' : code, 
+      'csrf_token':'{{csrf_token}}'
+    }
+    console.log(code)
+    $.ajax({
+      url: "{% url 'verify_coupon' %}",
+      method:"POST",
+      data:data,
+   
+      success:function(response){
+        var coupon = response.success
+        if (coupon == "valid"){
+          console.log("Coupon Verified Successfully")
+          document.getElementById('couponSuccessAlert').innerText = "Coupon successfully applied."
+          document.getElementById('couponInp').hidden = true
+          document.getElementById('claimButton').disabled = true  
+          document.getElementById('discountsID').hidden = false
+          document.getElementById('discGrandTotal').innerText = response.total_after_coupon
+          document.getElementById('discAmount').innerText = response.discount_amount
+         disAmount =  response.total_after_coupon
+         console.log(disAmount)
+
+        }else if (coupon == "coupon already used"){
+          document.getElementById('couponAlert').innerText = "Coupon already used."
+          
+          console.log("coupon already used")
+        }else{
+          document.getElementById('couponAlert').innerText = "Invalid Coupon..!!"
+          
+          console.log("not a valid coupon")
+      }
+      }
+    }) 
+  }
+
+
+</script>
 
 {% endblock %} 
