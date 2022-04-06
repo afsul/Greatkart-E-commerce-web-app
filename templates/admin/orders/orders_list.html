@@ -67,7 +67,7 @@
                                                 <th scope="row"><a href="#">{{order.order_number}}</a></th>
                                                 <td>{{order.full_name}}</td>
                                                 <td>{{order.phone}}</td>
-                                                <td>${{order.order_total}}</td>
+                                                <td>${{order.nett_paid}}</td>
                                                       <td>{{order.created_at}}</td>
                                                       <td>{{order.status}}</td>
                                                       {% if order.status == "Cancelled" %}

@@ -108,13 +108,13 @@ def checkout(request, total=0, quantity=0, cart_items=None):
         grand_total = total + tax
     except ObjectDoesNotExist:
         pass #just ignore
-    address = UserProfile.objects.filter(user=request.user)
+    address = Address.objects.filter(user=request.user)
     
     context = { 
         'total': total,                 
         'quantity':quantity,
         'cart_items':cart_items,
-        'tax'      : tax,
+        'tax': tax,
         'grand_total' : grand_total,
         'address':address,
     }

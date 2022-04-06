@@ -59,7 +59,7 @@
 				
 				{% endif %}
 			</figcaption>
-			<a href="{{product.get_url}}" class="btn btn-primary btn-sm m-1" > <i class="fa fa-shopping-cart"></i> Add to cart</a>
+			<a href="{% url  'add_cart' product.id	 %}" class="btn btn-primary btn-sm m-1" > <i class="fa fa-shopping-cart"></i> Buy Now</a>
 							<!-- <a class="btn btn-outline-info btn-sm m-1" id="hmAddtoWishlistBtn" onclick="wishList('{{product.id}}')"> <i class="fa fa-heart" ></i> Add to Wish</a> -->
 
 

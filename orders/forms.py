@@ -9,7 +9,7 @@ class OrderForm(forms.ModelForm):
 class AddressForm(forms.ModelForm):
     class Meta:
         model = Address
-        fields = ['first_name', 'last_name', 'phone', 'email', 'address_line_1', 'address_line_2', 'country', 'state', 'city']
+        fields = ['first_name', 'last_name', 'mobile', 'email', 'address_line_1', 'address_line_2', 'city', 'district', 'country', 'state', 'pincode']
 class OrderStatusForm(forms.ModelForm):
     class Meta:
         model = Order

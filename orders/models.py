@@ -20,21 +20,28 @@ class Payment(models.Model):
     def __str__(self):
         return self.payment_id
 class Address(models.Model):
-    user = models.ForeignKey(Account, on_delete=models.CASCADE) 
+    user = models.ForeignKey(Account, on_delete=models.CASCADE, )
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
-    phone = models.CharField(max_length=15)
-    email = models.EmailField(max_length=50)
-    address_line_1 = models.CharField(max_length=50)
-    address_line_2 = models.CharField(max_length=50, blank=True)
-    country = models.CharField(max_length=50)
-    state = models.CharField(max_length=50)
-    city = models.CharField(max_length=50)
+    mobile = models.CharField(max_length=12, blank=True, null=True)
+    email = models.EmailField(max_length=50, blank=True, null=True)
+    address_line_1 = models.CharField(max_length=100,  blank=True, null=True)
+    address_line_2 = models.CharField(max_length=100, blank=True, null=True)
+    city            = models.CharField(max_length=50)
+    district        = models.CharField(max_length=501)
+    country            = models.CharField(max_length=50)
+    state           = models.CharField(max_length=50)
+    country         = models.CharField(max_length=50, blank=True, null=True)
+    pincode         = models.CharField(max_length=10,blank=True, null=True) 
 
-    def __str__(self):
-        return self.first_name
+    created_at      = models.DateTimeField(auto_now_add=True)
+    updated_at      = models.DateTimeField(auto_now=True)
 
-
+    def  full_name(self):
+        return f'{self.first_name} {self.last_name}'
+        
+    def full_address(self):
+        return f'{self.address_line_1} {self.address_line_2}'
 class Order(models.Model):
 
     STATUS = (

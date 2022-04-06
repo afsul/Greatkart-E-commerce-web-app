@@ -11,7 +11,8 @@ from twilio.rest import Client
 from accounts.models import Account, UserProfile
 from carts.models import Cart, CartItem
 from carts.views import _cart_id
-from orders.models import Order
+from orders.forms import AddressForm
+from orders.models import Address, Order
 import razorpay
 from .forms import RegistrationfForm, UserForm, UserProfileForm
 import requests
@@ -257,27 +258,34 @@ def my_address(request):
 
 def add_address(request):
     if request.method == "POST":
-        form = UserProfileForm(request.POST)
+        form = AddressForm(request.POST)
         if form.is_valid():
             user = Account.objects.get(id = request.user.id)
+            first_name = form.cleaned_data['first_name']
+            last_name = form.cleaned_data['last_name']
+            mobile = form.cleaned_data['mobile']
+            email = form.cleaned_data['email']
             address_line_1 = form.cleaned_data['address_line_1']
             address_line_2 = form.cleaned_data['address_line_2']
             city = form.cleaned_data['city']
-            state = form.cleaned_data['state']
+            district = form.cleaned_data['district']
             country = form.cleaned_data['country']
+            state = form.cleaned_data['state']
+            pincode = form.cleaned_data['pincode']
+
     
-            new_address = UserProfile.objects.create(user=user, address_line_1=address_line_1, address_line_2=address_line_2, city=city, state=state, country=country)
+            new_address = Address.objects.create(user=user, first_name=first_name, last_name=last_name, mobile=mobile,email=email,address_line_1=address_line_1, address_line_2=address_line_2, city=city,district=district, state=state, country=country, pincode=pincode)
             new_address.save()       
 
             return redirect ('checkout')
         else:
-            form = UserProfileForm()    
+            form = AddressForm()    
             context = {
                     'form':form
             }
             return render(request, 'accounts/add_address.html', context)
     else:
-        form = UserProfileForm()    
+        form = AddressForm()    
         context = {
                     'form':form
             }

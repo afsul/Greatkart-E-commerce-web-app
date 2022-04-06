@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Address, Payment, Order, OrderProduct
+from .models import  Address, Payment, Order, OrderProduct
 # Register your models here.
 
 class OrderProductInline(admin. TabularInline):

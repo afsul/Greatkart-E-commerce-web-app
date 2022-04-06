@@ -17,32 +17,7 @@ import razorpay
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.cache import cache_control
 from django.contrib.auth.decorators import login_required
-# Create your views here.
-# def billing_adrress(request):
-   
-#     if request.method == 'POST':
-        
-#         first_name = request.POST['first_name']
-#         last_name = request.POST['last_name']
-#         email = request.POST['email']
-#         phone = request.POST['phone']
-#         address_line_1 = request.POST['address_line_1']
-#         address_line_2 = request.POST['address_line_2']
-#         city = request.POST['city']
-#         state = request.POST['state']
-#         country = request.POST['country']
-       
 
-#         address = Address.objects.create(first_name=first_name,last_name=last_name,email=email,phone=phone,address_line_1=address_line_1,address_line_2=address_line_2,city=city,state=state,country=country)
-#         address.save()
-            
-#         context ={
-#                                    'address':address,
-#                     }
-
-#         print(address)
-#         return render(request, 'store/checkout.html', context)
-#     return render(request, 'store/add_address.html')
 
 @login_required
 def place_order(request, total=0, quantity=0,):
@@ -69,7 +44,7 @@ def place_order(request, total=0, quantity=0,):
     form = CouponApplyForm()
     if request.method == 'POST':
         address_id = request.POST['ship_address']
-        address = UserProfile.objects.filter(id = address_id, user = request.user.id)
+        address = Address.objects.filter(id = address_id, user = request.user.id)
         order_note = request.POST['order_note']
         user = request.user
         for i in address:
@@ -488,13 +463,6 @@ def rzp_order_complete(request):
         orderproduct.product_price = item.product.price
         orderproduct.ordered = True
         orderproduct.save()
-
-        # #for variation - Many to Many field, first save data and then update.
-        # cart_item = CartItem.objects.get(id = item.id)
-        # product_variation = cart_item.variations.all()
-        # orderproduct = OrderProduct.objects.get(id = orderproduct.id)
-        # orderproduct.variations.set(product_variation)
-        # orderproduct.save()
         
     # reduce the quantity of sold products
         product = Product.objects.get(id = item.product_id)

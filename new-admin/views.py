@@ -28,6 +28,7 @@ def admin_home(request):
     order_count = Order.objects.all().count()
     users_count = UserProfile.objects.all().count()
     total_products = Product.objects.all().count()
+    print(order_status)
     print(categories)   
 
   
@@ -317,16 +318,6 @@ def export_csv(request):
         writer.writerow([data.full_name, data.order_number, data.created_at,data.city, data.state,data.order_total,data.status])
     return response
     
-def pdf_view(request):
-    fs = FileSystemStorage()
-    filename = 'mypdf.pdf'
-    if fs.exists(filename):
-        with fs.open(filename) as pdf:
-            response = HttpResponse(pdf, content_type='application/pdf')
-            response['Content-Disposition'] = 'attachment; filename="mypdf.pdf"'
-            return response
-    else:
-        return HttpResponseNotFound('The requested pdf was not found in our server.')
 
 
 def trial(request):
