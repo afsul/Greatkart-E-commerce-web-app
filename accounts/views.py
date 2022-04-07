@@ -9,8 +9,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
 from twilio.rest import Client
 from accounts.models import Account, UserProfile
-from carts.models import Cart, CartItem
 from carts.views import _cart_id
+from carts.models import Cart, CartItem
 from orders.forms import AddressForm
 from orders.models import Address, Order
 import razorpay
@@ -121,7 +121,9 @@ def new_user_otp_varification(request):
     
 def login(request):
   if  request.session.get('user_login'):
-        return redirect('home')
+     
+
+      return redirect('home')
 
   else:    
         if request.method == 'POST':
@@ -132,16 +134,20 @@ def login(request):
 
             if user is not None:
                 try:
-                    cart = Cart.objects.get(cart_id=_cart_id(request))
-                    is_cart_item_exists = CartItem.objects.filter(cart=cart).exists()
+                    cart = Cart.objects.get(cart_id=_cart_id(request)) #selecting particular cart on  that session
+                    is_cart_item_exists = CartItem.objects.filter(cart=cart).exists() #checking there is a cart with similar session
+                    print(is_cart_item_exists)
                     if is_cart_item_exists:
                         cart_item = CartItem.objects.filter(cart=cart)
+                        print(cart_item)
 
-                        for item in cart_item:
+                        for item in cart_item: 
                             item.user = user
                             item.save()
+                            print(item.user)
                 except:
                     pass
+                
   
                 auth.login(request, user)
                 request.session['user_login'] = 'user_signin' 

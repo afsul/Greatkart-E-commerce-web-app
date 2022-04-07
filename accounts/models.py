@@ -51,8 +51,6 @@ class Account(AbstractBaseUser):
     email           = models.EmailField(max_length=100, unique=True )
     phone_number    = models.CharField(max_length=50)
 
-
-
     #required
     date_joined     = models.DateField(auto_now_add=True)
     last_login      = models.DateField(auto_now_add=True)

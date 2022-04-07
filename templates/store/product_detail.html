@@ -207,8 +207,8 @@ body {
                   <p>{{single_product.description}}</p>
                   
                   
-                  <hr>
-                      <div class="row">
+                  {% comment %} <hr> {% endcomment %}
+                      {% comment %} <div class="row">
                           <div class="item-option-select">
                               <h6>Choose Color</h6>
                               <select name="color" class="form-control">
@@ -218,8 +218,8 @@ body {
                                {% endfor %}
                               </select>
                           </div>
-                       </div> <!-- row.// -->
-                      <div class="row">
+                       </div> <!-- row.// --> {% endcomment %}
+                      {% comment %} <div class="row">
                           <div class="item-option-select">
                               <h6>Select Size</h6>
                               <select name="size" class="form-control">
@@ -229,8 +229,8 @@ body {
                                {% endfor %}
                               </select>
                           </div>
-                      </div>  
-                      <hr>
+                      </div>   {% endcomment %}
+                      {% comment %} <hr> {% endcomment %}
                       {% if single_product.stock <= 0 %}
                       <h5 class="text-danger">Out of Stock</h5>
                       {% else %}
