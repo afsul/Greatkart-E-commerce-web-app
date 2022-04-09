@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'orders',
     'crispy_forms',
     'coupon',
+    'paypal.standard.ipn'
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
@@ -168,3 +169,7 @@ RAZORPAY_API_KEY = 'rzp_test_N9YYgyoIQNNsad'
 RAZORPAY_API_SECRET_KEY = '4WwWBrZdRQIc2PyicXlcHd5O'
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880
+
+PAYPAL_RECEIVER_EMAIL = 'afsulult@gmail.com'
+
+PAYPAL_TEST = True

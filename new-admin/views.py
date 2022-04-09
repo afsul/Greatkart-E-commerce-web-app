@@ -25,6 +25,7 @@ def admin_home(request):
     orders = Order.objects.filter(is_ordered=True).order_by('-created_at')
     categories = Category.objects.all().annotate(item_count=Count('product'))
     order_status = Order.objects.all().annotate(item_status=Count('status'))
+    print(order_status)
     order_count = Order.objects.all().count()
     users_count = UserProfile.objects.all().count()
     total_products = Product.objects.all().count()

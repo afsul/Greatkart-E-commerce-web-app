@@ -1,8 +1,9 @@
-from datetime import datetime
-import datetime
+
+
 from multiprocessing import context
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from accounts.models import UserProfile
 from carts.models import CartItem
 from coupon.forms import CouponApplyForm
@@ -13,14 +14,18 @@ from orders.models import Address, Order, OrderProduct, Payment
 from store.models import Product
 from .forms import OrderForm
 import json
+from decimal import Decimal
 import razorpay
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.cache import cache_control
 from django.contrib.auth.decorators import login_required
+from paypal.standard.forms import PayPalPaymentsForm
 
 
 @login_required
 def place_order(request, total=0, quantity=0,):
+
+    import datetime 
     try:
         address_id = request.POST['ship_address']
         
@@ -41,7 +46,7 @@ def place_order(request, total=0, quantity=0,):
 
     tax = (5 * total)/100
     grand_total = total + tax 
-    form = CouponApplyForm()
+    # form = CouponApplyForm()
     if request.method == 'POST':
         address_id = request.POST['ship_address']
         address = Address.objects.filter(id = address_id, user = request.user.id)
@@ -83,6 +88,27 @@ def place_order(request, total=0, quantity=0,):
         order = Order.objects.get(user=current_user, is_ordered=False, order_number=order_number)
         user = request.user
 
+        # jithin
+        host = request.get_host()
+        paypal_dict = {
+        'business': settings.PAYPAL_RECEIVER_EMAIL,
+        'amount': grand_total,
+        'item_name': 'Order {}'.format(order.id),
+        'invoice': str(order.id),
+        'currency_code': 'USD',
+        'notify_url': 'http://{}{}'.format(host,
+                                           reverse('paypal-ipn')),
+        'return_url': 'http://{}{}'.format(host,
+                                           reverse('order_complete')),
+        'cancel_return': 'http://{}{}'.format(host,
+                                              reverse('place_order')),
+        }
+
+        form = PayPalPaymentsForm(initial=paypal_dict)
+        print(form,'*'*89)
+        # jithin
+        # form = PayPalPaymentsForm()
+
        
     
 
@@ -93,6 +119,8 @@ def place_order(request, total=0, quantity=0,):
             'total' : total,
             'tax' : tax,
             'grand_total' : grand_total,
+            'form' : form
+
                 }
         return render(request,'orders/payments.html',context)
     else:
@@ -152,8 +180,44 @@ def payments(request):
             'transID': payment.payment_id,
         }
     return JsonResponse(data)
+
+#=================================== Paypal Start ===========================#
+def paypal_payment(request):
+    print("Entered to paypal")
+    order = Order.objects.get(user = request.user, is_ordered = False)
+    cart_items = CartItem.objects.filter(user=request.user)
+    for cart_item in cart_items:
+        total += (cart_item.product.price * cart_item.quantity)
+        quantity += cart_item.quantity
+
+    tax = (5 * total)/100
+    grand_total = total + tax 
+    host = request.get_host()
+
+    paypal_dict = {
+        'business': settings.PAYPAL_RECEIVER_EMAIL,
+        'amount': grand_total,
+        'item_name': 'Order {}'.format(order.id),
+        'invoice': str(order.id),
+        'currency_code': 'USD',
+        'notify_url': 'http://{}{}'.format(host,
+                                           reverse('paypal-ipn')),
+        'return_url': 'http://{}{}'.format(host,
+                                           reverse('payment_done')),
+        'cancel_return': 'http://{}{}'.format(host,
+                                              reverse('payment_cancelled')),
+    }
+
+    form = PayPalPaymentsForm(initial=paypal_dict)
+    return render(request, 'orders/payments.html', {'order': order, 'form': form})
+
+
+
+
+#=================================== Razorpay Start ========================#
+from datetime import datetime  #now
 def proceed_payment(request):
-   
+    
     order_id = request.POST['ord_no']
     # print(order_id)
     now = datetime.now()
@@ -194,6 +258,7 @@ def proceed_payment(request):
             
             order.save()
             
+            CartItem.objects.filter(user=request.user).delete()
             
             first_name = order.first_name
             last_name = order.last_name
@@ -268,38 +333,36 @@ def proceed_payment(request):
 
     
     
-    
 
 
 #COD
 def cod_order_complete(request,order_number):
+    print(order_number)
+
     order_number = order_number
 
-    now = datetime.now()
+    
     order = Order.objects.filter(user = request.user, is_ordered = False)
-    code = order.coupon
+   
     try:
-        order = Order.objects.get(user = request.user, is_ordered = False)
+        order = Order.objects.get(user = request.user,order_number= order_number,is_ordered = False)
         code = order.coupon
         # print(code,'checking coupon')
-        coupon = Coupon.objects.get(code__exact = code, valid_from__lte=now, valid_to__gte=now, active = True)
-        # print('coupon available')
-        if coupon:
-            # print('coupon available',coupon)
-            discount = coupon.discount
-            # print(discount)
-            order_no = order.order_number            
-            # print(order_no)
-            # print('got order')
-            current_user = request.user
-            cart_items = CartItem.objects.filter(user = current_user)
-            grand_total = 0
-            tax = 0
-            total = 0
-            quantity = 0
-            for cart_item in cart_items:
-                total   += (cart_item.product.price * cart_item.quantity)
-                quantity += cart_item.quantity
+        now = datetime.now()
+        try:
+            coupon = Coupon.objects.get(code__exact = code, valid_from__lte=now, valid_to__gte=now, active = True)
+            if coupon:
+                discount = coupon.discount
+                order_no = order.order_number            
+                current_user = request.user
+                cart_items = CartItem.objects.filter(user = current_user)
+                grand_total = 0
+                tax = 0
+                total = 0
+                quantity = 0
+                for cart_item in cart_items:
+                    total   += (cart_item.product.price * cart_item.quantity)
+                    quantity += cart_item.quantity
             tax = round((5 * total)/100,2)
             grand_total = round(total + tax,2)
         
@@ -324,8 +387,37 @@ def cod_order_complete(request,order_number):
             order.payment= payment 
             order.is_ordered = True
             order.coupon_use_status = True
-            
             order.save()
+        except Coupon.DoesNotExist:
+                order_no = order.order_number  
+                current_user = request.user
+                cart_items = CartItem.objects.filter(user = current_user)
+                grand_total = 0
+                tax = 0
+                total = 0
+                quantity = 0
+                for cart_item in cart_items:
+                    total   += (cart_item.product.price * cart_item.quantity)
+                    quantity += cart_item.quantity
+                tax = round((5 * total)/100,2)
+                grand_total = round(total + tax,2)
+                order.nett_paid = grand_total
+                order.coupon_use_status = False
+                order.save()
+                payment = Payment(
+                user = request.user,
+                payment_id = "COD - Payement pending",
+                payment_method = "COD",
+                amount_paid = order.nett_paid,
+                status = "COD",
+                )
+                payment.save()
+                order.payment= payment 
+                order.is_ordered = True
+                order.coupon_use_status = False
+                order.save()
+
+
 
         cart_items = CartItem.objects.filter(user = request.user)
         for item in cart_items:
@@ -339,12 +431,8 @@ def cod_order_complete(request,order_number):
             orderproduct.ordered = True
             orderproduct.save()
 
-            # cart_item = CartItem.objects.get(id = item.id)
-            # product_variation = cart_item.variations.all()
-            # orderproduct = OrderProduct.objects.get(id=orderproduct.id)
-            # orderproduct.variations.set(product_variation)
-            # orderproduct.save()
-
+            
+            # qunatity decreaing on order
             product = Product.objects.get(id=item.product_id)
             product.stock -= item.quantity
             product.save()

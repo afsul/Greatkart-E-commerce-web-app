@@ -42,10 +42,11 @@ def verify_coupon(request):
             coupon = Coupon.objects.get(code__iexact = code, valid_from__lte=now, valid_to__gte=now, active = True)
             if coupon:
                 print('coupon valid')
-
                 try:
+                    print("Coupon valid try")
                     coupon_already_used = Order.objects.get(user=request.user,coupon=coupon,coupon_use_status=True)
                     if coupon_already_used:
+                        print("COUPON ALREADY USED")
                         print(coupon_already_used,"coupon not available")
 
                         # print("coupon used")
@@ -94,6 +95,7 @@ def verify_coupon(request):
                     discount = coupon.discount
                     # print(discount)
                     order = Order.objects.get(user = request.user, is_ordered = False)
+                    print(order,"oder in ecxept ************************  ")
                     order_no = order.order_number
                     order.coupon = coupon
                     order.discount = round(discount,2)
