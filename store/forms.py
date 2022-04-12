@@ -14,6 +14,6 @@ class ProductForm(forms.ModelForm):
             
 class ProductGalleryForm(forms.ModelForm):
     class Meta:
-        model: ProductGallery
-        fields = ('image',)
+        model= ProductGallery
+        fields = ['product','image']
         

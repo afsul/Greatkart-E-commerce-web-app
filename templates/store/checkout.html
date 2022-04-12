@@ -28,6 +28,14 @@
                                     
                                 </div>
                                 {% endfor %}
+                                {% for message in messages %}
+    
+    <div class="alert alert-error">
+        <a class="close" href="#" data-dismiss="alert">×</a>
+           {{ message }}
+    </div>
+
+{% endfor %}
                                 
                                 <div class="form-row">
                                     <label for="">Order Note</label>

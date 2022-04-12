@@ -1,85 +1,123 @@
-{% extends 'admin/admin-base.html' %}
-{% load static %}
-{% block content %}
-<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css">
-<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
-<div class="container">
-    <div>
-        <div class="dropdown ms-auto">
-            <a href="{% url 'export_csv' %}" 
-               class="btn btn-primary"
-               aria-haspopup="true" aria-expanded="false">CSV</a>
 
-              
-              
-        </div>
-              
-        
-    <form method="POST" action="{% url 'sales_report' %}">
-                    {% csrf_token %}
-                  <hr > 
-                  <label for="from_date" style="float: left; "> From </label> 
-                  <input id= "from_date" type="date" name="from_date" placeholder="From Date" class="form-control col-2 m-2" style="float:left" required> 
-                  <label for="to_date" style="float: left;"> To </label> 
-                  <input type="date" id="to_date" name="to_date" class="form-control col-2 m-2" placeholder="To Date" style="float:left" required> 
-                  <button type="submit" class="btn btn-primary m-2">Filter Orders</button> 
-                  
+{% load static %}
+
+<!doctype html>
+<html lang="en">
+ 
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}">
+    <link href="{% static 'assets/vendor/fonts/circular-std/style.css' %}" rel="stylesheet">
+     <link rel="stylesheet" href="{% static 'assets/libs/css/style.css' %}">
+     <link rel="stylesheet" href="{% static 'assets/vendor/fonts/fontawesome/css/fontawesome-all.css' %}">
+     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+
+
+
+
+    <title>GreatKart</title>
+</head>
+
+<body>
+    
+    <div class="dashboard-main-wrapper">
+       
+   {% include 'admin/includes/admin-navbar.html' %}
+   {% include 'admin/includes/admin-menubar.html' %}
+        <div class="dashboard-wrapper">
+            <div class="dashboard-ecommerce">
+                <div class="container-fluid dashboard-content ">
+                 
+                   
+            
+{% block content %}
+
+<div class="container">
+  <div>
+      <div class="dropdown ms-auto">
+          <a href="{% url 'export_csv' %}" 
+             class="btn btn-primary"
+             aria-haspopup="true" aria-expanded="false">CSV</a>
+
+            
+            
       </div>
-     </div>
-    
-     {% if not orders %}
-     <div> 
-     <h4 class="text-center mt-5"> No orders found in this range. Please check with some other dates. </h4>
-     </div>
-     {% else %}
-    <div class="card mb-4 mt-4">
-      <div class="card-header">
-          <i class="fas fa-table me-1"></i>
-          Orders
-          {% include 'includes/alerts.html' %}
-          
-      <div class="card-body">
-        <table id="example" class="display nowrap" style="width:100%">
-                <thead>
-                    <tr>
-                          <th>Customer Name</th>
-                          <th>Order No</th>
-                          <th>Order Date</th>
-                          <th>City</th>
-                          <th>State</th>
-                          <th>Order Amount</th>
-                          <th>Status</th>
-                  
-                         
-                    </tr>
-                </thead>
-                <tbody>
-                      {% for order in orders %}
-                        <form action="{% url 'update_order_status' order.order_number %}" method="POST">
-                          {% csrf_token %}
-                        <tr>
-                          <td>{{order.full_name}}</td>
-                          <td>{{order.order_number}}</td>
-                          <td>{{order.created_at}}</td>
-                          <td>{{order.city}}</td>
-                          <td>{{order.state}}</td>
-                          <td>₹ {{order.order_total}}</td>
-                          <td>{{order.status}}</td>
-                          
-                          </form>
-                        </tr>
+            
+      
+  <form method="POST" action="{% url 'sales_report' %}">
+                  {% csrf_token %}
+                <hr > 
+                <label for="from_date" style="float: left; "> From </label> 
+                <input id= "from_date" type="date" name="from_date" placeholder="From Date" class="form-control col-2 m-2" style="float:left" required> 
+                <label for="to_date" style="float: left;"> To </label> 
+                <input type="date" id="to_date" name="to_date" class="form-control col-2 m-2" placeholder="To Date" style="float:left" required> 
+                <button type="submit" class="btn btn-primary m-2">Filter Orders</button> 
+                
+    </div>
+   </div>
+  
+   {% if not orders %}
+   <div> 
+   <h4 class="text-center mt-5"> No orders found in this range. Please check with some other dates. </h4>
+   </div>
+   {% else %}
+  <div class="card mb-4 mt-4">
+    <div class="card-header">
+        <i class="fas fa-table me-1"></i>
+        Orders
+        {% include 'includes/alerts.html' %}
+        
+    <div class="card-body">
+      <table id="example" class="display nowrap" style="width:100%">
+              <thead>
+                  <tr>
+                        <th>Customer Name</th>
+                        <th>Order No</th>
+                        <th>Order Date</th>
+                        <th>City</th>
+                        <th>State</th>
+                        <th>Order Amount</th>
+                        <th>Status</th>
+                        
+                
+                       
+                  </tr>
+              </thead>
+              <tbody>
+                    {% for order in orders %}
+                      <form action="{% url 'update_order_status' order.order_number %}" method="POST">
+                        {% csrf_token %}
+                      <tr>
+                        <td>{{order.full_name}}</td>
+                        <td>{{order.order_number}}</td>
+                        <td>{{order.created_at}}</td>
+                        <td>{{order.city}}</td>
+                        <td>{{order.state}}</td>
+                        <td>₹ {{order.order_total}}</td>
+                        <td>{{order.status}}</td>
                       
-                        {% endfor %}
-    
-                </tbody>
-              
-            </table>
-        </div>
-    </div>
-    {% endif %}
-    
-    </div>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+                        
+                        </form>
+                      </tr>
+                    
+                      {% endfor %}
+                     
+              </tbody>
+            
+          </table>
+          {% for amount in total_sales_amount %}
+          <h4>{{amount}}</h4>
+          {% endfor %}
+      </div>
+  </div>
+  {% endif %}
+  
+  </div>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 
 <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js"></script>
@@ -90,35 +128,61 @@
 <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.print.min.js"></script>
 
 <script>
-  $(document).ready(function() {
-    $('#example').DataTable( {
-        dom: 'Bfrtip',
-        buttons: [
-            'copy', 'csv', 'excel', 'pdf', 'print'
-        ]
-    } );
+$(document).ready(function() {
+  $('#example').DataTable( {
+      dom: 'Bfrtip',
+      buttons: [
+          'copy', 'csv', 'excel', 'pdf', 'print'
+      ]
+  } );
 } );
-    </script>   
+  </script>   
+
+    
+  <script>
+    var today = new Date();
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0');
+    var yyyy = today.getFullYear();
+  
+    today = yyyy + '-' + mm + '-' + dd;
+    $('#from_date').attr('max', today);
+    $('#to_date').attr('max', today);
+    document.getElementById('from_date').onchange = e => {
+        value = e.target.value
+        $('#to_date').attr('min', value);
+    }
+  
+  </script>
+  
+
+{% endblock %}
+
+
+</div>
+</div>
+{% include 'admin/includes/admin-footer.html' %}
+
+
+</div>
+
+</div>
+
+
+
+<script src="{% static 'assets/vendor/bootstrap/js/bootstrap.bundle.js' %}"></script>
+
+
+
+
+
+</body>
+
+</html>
+
 
       
-    <script>
-      var today = new Date();
-      var dd = String(today.getDate()).padStart(2, '0');
-      var mm = String(today.getMonth() + 1).padStart(2, '0');
-      var yyyy = today.getFullYear();
-    
-      today = yyyy + '-' + mm + '-' + dd;
-      $('#from_date').attr('max', today);
-      $('#to_date').attr('max', today);
-      document.getElementById('from_date').onchange = e => {
-          value = e.target.value
-          $('#to_date').attr('min', value);
-      }
-    
-    </script>
-    
-      
 
 
     
-    {% endblock %}
+ 

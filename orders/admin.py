@@ -10,7 +10,7 @@ class OrderProductInline(admin. TabularInline):
 
 
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ['order_number', 'full_name', 'phone', 'email', 'city', 'order_total', 'nett_paid','tax', 'status', 'is_ordered','coupon','coupon_use_status', 'created_at']
+    list_display = ['order_number', 'full_name', 'phone', 'email', 'order_total', 'nett_paid','tax', 'status', 'is_ordered','coupon','coupon_use_status', 'created_at']
     list_filter = ['status', 'is_ordered']
     search_fields = ['order_number', 'first_name', 'last_name', 'phone', 'email','coupon_use_status']
     list_per_page = 20

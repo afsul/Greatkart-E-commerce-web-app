@@ -29,6 +29,12 @@ def admin_home(request):
     order_count = Order.objects.all().count()
     users_count = UserProfile.objects.all().count()
     total_products = Product.objects.all().count()
+    total_sales_amount=0
+    for total in orders:
+        total_sales_amount += total.order_total
+        
+
+    
     print(order_status)
     print(categories)   
 
@@ -41,6 +47,8 @@ def admin_home(request):
         'order_count':order_count,
         'users_count':users_count,
         'total_products':total_products,
+        'total_sales_amount':total_sales_amount
+
         
     }
     return render(request, 'admin/admin-home.html',context)
@@ -199,11 +207,28 @@ def add_product(request):
                 
                 else:
                     form = ProductForm(request.POST or None, request.FILES or None)
+                    
                     context = {
                                 'form':form
                             }
                     return render(request, 'admin/products/add_product.html', context)  
                 
+
+#producgt gallery
+def add_product_gallery_image(request):
+    print('Entered to add product gallery5555555555555555555555555555555555555555555555555555555')
+    form = ProductGalleryForm(request.POST or None, request.FILES or None)
+    print("After form")
+    print(form)
+
+    context = {                           
+                'form':form,
+            }
+    return render(request, 'admin/products/add_product_gallery.html', context)
+
+                
+                
+               
 
             
 
@@ -262,6 +287,15 @@ def cancel_order_admin(request, id):
     
     return redirect('orders_list')
 
+def add_product_gallery(request):
+    if request.method == 'POST':
+        form = ProductGalleryForm()
+        if form.is_valid():
+            product = ProductGallery()
+            product.image = form.cleaned_data['image']
+            form.save()
+    return render(request, 'admin/products/add_product_gallery.html')
+
 @login_required(login_url='admin_login')
 def update_order_status(request, order_number):
 
@@ -295,15 +329,29 @@ def sales_report(request):
         from_date = request.POST["from_date"]
         to_date = request.POST["to_date"]
         orders = Order.objects.filter(created_at__range=(from_date, to_date))
+        
+        sales = Order.objects.all()
+
+        total_sales_amount=0
+        for total in sales:
+            total_sales_amount +=  total.nett_paid
+        print(total_sales_amount,'u777777777777777777777777777')
+
         context = {
-        'orders':orders,          
+        'orders':orders,
+        'total_sales_amount':total_sales_amount ,         
         }
         return render(request,'admin/orders/sales_report.html',context)
     
     else:
         orders = Order.objects.all().order_by('-order_number')
+        total_sales_amount=0
+        for total in sales:
+            total_sales_amount +=  total.nett_paid
+        print(total_sales_amount,'u777777777777777777777777777')
         context = {
-            'orders':orders,            
+            'orders':orders,      
+            'total_sales_amount':total_sales_amount ,         
         }
         return render(request,'admin/orders/sales_report.html',context)
 

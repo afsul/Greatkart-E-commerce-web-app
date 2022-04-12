@@ -36,14 +36,16 @@ def verify_coupon(request):
     now = datetime.now()
     if request.method == "POST":
         code = request.POST['code']
+       
         print(code,'this is the offer code')
         try:
             print('checking coupon')
-            coupon = Coupon.objects.get(code__iexact = code, valid_from__lte=now, valid_to__gte=now, active = True)
+            coupon = Coupon.objects.get(code = code, valid_from__lte=now, valid_to__gte=now, active = True)
+            print(coupon,'this is the coupon in ')
             if coupon:
-                print('coupon valid')
+                print(coupon,'coupon valid')
                 try:
-                    print("Coupon valid try")
+                    print("Checking whether already used")
                     coupon_already_used = Order.objects.get(user=request.user,coupon=coupon,coupon_use_status=True)
                     if coupon_already_used:
                         print("COUPON ALREADY USED")
@@ -92,14 +94,15 @@ def verify_coupon(request):
                         return JsonResponse(context)
                         
                 except:
+                    print('except'+"*" * 100)
                     discount = coupon.discount
-                    # print(discount)
-                    order = Order.objects.get(user = request.user, is_ordered = False)
+                  
+                    order = Order.objects.get(user = request.user,is_ordered = False)
                     print(order,"oder in ecxept ************************  ")
                     order_no = order.order_number
                     order.coupon = coupon
                     order.discount = round(discount,2)
-                    order.save()
+                    # order.save()
                     # print(order_no)
                     # print('got order')
                     current_user = request.user
@@ -113,10 +116,14 @@ def verify_coupon(request):
                         quantity += cart_item.quantity
                     tax = round((5 * total)/100,2)
                     grand_total = round(total + tax,2)
+                    
                 
                     discount_amount = round(grand_total * discount/100,2)
                     # print(discount_amount,'discount amount')
                     total_after_coupon = round(float(grand_total - discount_amount),2)
+                    order.nett_paid = total_after_coupon
+                    
+                    order.save()
                     # print(grand_total,'total')
                     # print(total_after_coupon,'amount after discount')
 
@@ -124,6 +131,7 @@ def verify_coupon(request):
                         "success":"valid",
                         "discount_amount": discount_amount,
                         "total_after_coupon":total_after_coupon,
+                        'url':''
                     }
                     return JsonResponse(context)                    
                     
