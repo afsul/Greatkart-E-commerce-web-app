@@ -1,3 +1,5 @@
+
+  
 from pyexpat import model
 from django import forms
 from .models import Product, ProductGallery
@@ -15,5 +17,4 @@ class ProductForm(forms.ModelForm):
 class ProductGalleryForm(forms.ModelForm):
     class Meta:
         model= ProductGallery
-        fields = ['product','image']
-        
+        fields = ['product','images']

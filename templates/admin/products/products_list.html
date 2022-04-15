@@ -59,7 +59,8 @@
                                                 <th scope="col">Price</th>
                                                 <th scope="col">Stock</th>
                                                 <th scope="col">Action </th>
-                                                <th> <a href="{% url 'add_product_gallery' %}"><i class="fas fa-images ml-3"></i></a></th>
+                                                <th scope="col">Product Gallery </th>
+                                               
                                               
                                             </tr>
                                         </thead>
@@ -75,9 +76,9 @@
                                                 
                                                 <td><a href="{% url 'product_delete' item.id %}" onclick="return confirm('Are you sure you want to delete this item ?')"><i class=" fas fa-trash-alt
                                                     "></a></i>
-                                                    <a href="{% url 'edit_product' item.id %}"><i class=" fas fa-edit ml-3"></i></a>
-                                                    
+                                                    <a href="{% url 'edit_product' item.id %}"><i class=" fas fa-edit ml-3"></i></a>    
                                                 </td>
+                                                <td><a href="{% url 'add_product_gallery' %}"><i class="fas fa-images ml-3"></i></a></td>
                                                
                                             </tr>   
                                             {% endfor %}

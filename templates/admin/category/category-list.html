@@ -53,7 +53,7 @@
                                            
                                             <tr>
                                                
-                                                <th scope="col"> CategoryImage</th>
+                                                
                                                 <th scope="col">Category name:</th>
                                                 <th scope="col">Slug</th>
                                                 <th scope="col">Description</th>
@@ -64,8 +64,7 @@
                                             {% for category in category_items %}
                                             <tr>
                                                
-                                                <td><img src="{{category.cart_image.url}}" style="
-                                                    width: 75px; height: 75px;"></td>
+                                              
                                                 <td>{{category.category_name}}</td>
                                                 <td>{{category.slug}}</td>
                                                 <td>{{category.description}}</td>
@@ -76,6 +75,8 @@
                                                 </td>
                                             </tr>
                                             {% endfor %}
+
+                                           
                                            
                                         </tbody>
                                     </table>

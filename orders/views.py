@@ -39,7 +39,6 @@ def place_order(request, total=0, quantity=0,):
     import datetime
     try:
         address_id = request.POST['ship_address']
-        
     except:
         messages.error(request,'Select a valid address')
         return redirect('checkout')
@@ -183,13 +182,13 @@ def place_order(request, total=0, quantity=0,):
         form = PayPalPaymentsForm(initial=paypal_dict)
         
 
-        print("Entering to this view razorpa")
-        amount = int(order.nett_paid  * 100)
-        print(amount, "printed amount")
-        client = razorpay.Client(auth = ("rzp_test_N9YYgyoIQNNsad" , "4WwWBrZdRQIc2PyicXlcHd5O"))
-        print(client)
-        payment = client.order.create({'amount':amount, 'currency':'INR', 'payment_capture':'1' })   
-        print(payment)
+        # print("Entering to this view razorpa")
+        # amount = int(order.nett_paid  * 100)
+        # print(amount, "printed amount")
+        # client = razorpay.Client(auth = ("rzp_test_N9YYgyoIQNNsad" , "4WwWBrZdRQIc2PyicXlcHd5O"))
+        # print(client)
+        # payment = client.order.create({'amount':amount, 'currency':'INR', 'payment_capture':'1' })   
+        # print(payment)
        
 
  
@@ -204,8 +203,8 @@ def place_order(request, total=0, quantity=0,):
             'tax' : tax,
             'grand_total' : grand_total,
             'form' : form,
-            'payment':payment,
-            'amount':amount
+            # 'payment':payment,
+            # 'amount':amount
 
                 }
         return render(request,'orders/payments.html',context)

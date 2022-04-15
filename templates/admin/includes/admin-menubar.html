@@ -9,140 +9,35 @@
                         <span class="navbar-toggler-icon"></span>
                     </button>
                     <div class="collapse navbar-collapse" id="navbarNav">
+                        {% with request.resolver_match.url_name as url_name %}
                         <ul class="navbar-nav flex-column">
                             <li class="nav-divider">
-                                Menu
+                                
                             </li>
                             <li class="nav-item ">
-                                <a class="nav-link active" href="{% url 'admin_home' %}" data-toggle="collapse" aria-expanded="false" data-target="#submenu-1" aria-controls="submenu-1"><i class="fa fa-fw fa-user-circle"></i>Dashboard <span class="badge badge-success">6</span></a>
-                                <div id="submenu-1" class="collapse submenu" style="">
-                                    <ul class="nav flex-column">
-                                        <!-- <li class="nav-item">
-                                            <a class="nav-link" href="#" data-toggle="collapse" aria-expanded="false" data-target="#submenu-1-2" aria-controls="submenu-1-2">E-Commerce</a>
-                                            <div id="submenu-1-2" class="collapse submenu" style="">
-                                                <ul class="nav flex-column">
-                                                    <li class="nav-item">
-                                                        <a class="nav-link" href="index.html">E Commerce Dashboard</a>
-                                                    </li>
-                                                    <li class="nav-item">
-                                                        <a class="nav-link" href="ecommerce-product.html">Product List</a>
-                                                    </li>
-                                                    <li class="nav-item">
-                                                        <a class="nav-link" href="ecommerce-product-single.html">Product Single</a>
-                                                    </li>
-                                                    <li class="nav-item">
-                                                        <a class="nav-link" href="ecommerce-product-checkout.html">Product Checkout</a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a class="nav-link" href="dashboard-finance.html">Finance</a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a class="nav-link" href="dashboard-sales.html">Sales</a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a class="nav-link" href="#" data-toggle="collapse" aria-expanded="false" data-target="#submenu-1-1" aria-controls="submenu-1-1">Infulencer</a>
-                                            <div id="submenu-1-1" class="collapse submenu" style="">
-                                                <ul class="nav flex-column">
-                                                    <li class="nav-item">
-                                                        <a class="nav-link" href="dashboard-influencer.html">Influencer</a>
-                                                    </li>
-                                                    <li class="nav-item">
-                                                        <a class="nav-link" href="influencer-finder.html">Influencer Finder</a>
-                                                    </li>
-                                                    <li class="nav-item">
-                                                        <a class="nav-link" href="influencer-profile.html">Influencer Profile</a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </li> -->
-                                    </ul>
-                                </div>
-                            <!-- </li>
-<! -------------------------------------USERS ------------------ -->
-
-                            <li class="nav-item">
-                                <a class="nav-link" href="#" data-toggle="collapse" aria-expanded="false" data-target="#submenu-2" aria-controls="submenu-2"><i class="fa fa-fw fa-rocket"></i>Users</a>
-                                <div id="submenu-2" class="collapse submenu" style="">
-                                    <ul class="nav flex-column">
-                                        <li class="nav-item">
-                                            <a class="nav-link" href="{% url 'user-table' %}">User List <span class="badge badge-secondary">New</span></a>
-                                        </li>
-                                    </ul>
-                                </div>
+                                <a class="nav-link {% if url_name == 'admin_home' %}active{% endif %}" href="{% url 'admin_home' %}" ><i class="fas fa-th"></i>Dashboard</a>
+                               </li>
+                            <li class="nav-item ">
+                                <a class="nav-link {% if url_name == 'user-table' %}active{% endif %}" href="{% url 'user-table' %}" ><i class="fa fa-users"></i>Users</a>
+                               </li>
+                            <li class="nav-item ">
+                                <a class="nav-link {% if url_name == 'category' %}active{% endif %}" href="{% url 'category' %}" ><i class="fa fa-list-alt"></i>Category</a>
+                               </li>
+                            <li class="nav-item ">
+                                <a class="nav-link {% if url_name == 'products_list' %}active{% endif %}" href="{% url 'products_list' %}" ><i class="fa fa-shopping-bag"></i>Products</a>
+                                </li>
+                            <li class="nav-item ">
+                                <a class="nav-link {% if url_name == 'orders_list' %}active{% endif %}" href="{% url 'orders_list' %}" ><i class="fa fa-list"></i>Orders </a>
+                               </li>
+                            <li class="nav-item ">
+                               <a class="nav-link {% if url_name == 'sales_report' %}active{% endif %}" href="{% url 'sales_report' %}" ><i class="fa fa-file"></i>Sales Report </a>
+                                </li>
+                            <li class="nav-item ">
+                               <a class="nav-link {% if url_name == 'admin_offers' %}active{% endif %}" href="{% url 'admin_offers' %}" ><i class="fa fa-tags"></i>Offer Management </a>
                             </li>
-
-<!---------------------------------------Category --------------------> 
-
-                            <li class="nav-item">
-                                <a class="nav-link" href="#" data-toggle="collapse" aria-expanded="false" data-target="#submenu-9" aria-controls="submenu-9"><i class="fas fa-fw fa-map-marker-alt"></i>Category</a>
-                                <div id="submenu-9" class="collapse submenu" style="">
-                                    <ul class="nav flex-column">
-                                        <li class="nav-item">
-                                            <a class="nav-link" href="{% url 'category' %}">Category List</a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a class="nav-link" href="{% url 'add_category' %}">Add Category</a>
-                                        </li>
-                                        
-                                    </ul>
-                                </div>
-                            </li>
-<!------------Product------------------>
-<li class="nav-item">
-    <a class="nav-link" href="#" data-toggle="collapse" aria-expanded="false" data-target="#submenu-10" aria-controls="submenu-10"><i class="fas fa-f fa-folder"></i>Products</a>
-    <div id="submenu-10" class="collapse submenu" style="">
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'products_list' %}">All Products</a>
-            </li>
-                                    </ul>
-                                </div>
-                            </li>
-
-                            <!--------------Orders------------------>
-<li class="nav-item">
-    <a class="nav-link" href="#" data-toggle="collapse" aria-expanded="false" data-target="#submenu-7" aria-controls="submenu-7"><i class="fas fa-fw fa-inbox"></i>Orders <span class="badge badge-secondary">New</span></a>
-    <div id="submenu-7" class="collapse submenu" style="">
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'orders_list' %}">Orders List</a>
-            </li>
-            
-        </ul>
-    </div>
-</li>
-                            <!-------------- Sales Report ------------------>
-
-<li class="nav-item">
-    <a class="nav-link" href="#" data-toggle="collapse" aria-expanded="false" data-target="#submenu-11" aria-controls="submenu-11"><i class="fas fa-fw fa-map-marker-alt"></i>Sales Report</a>
-    <div id="submenu-11" class="collapse submenu" style="">
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'sales_report' %}">View Report</a>
-            </li>
-           
-        </ul>
-    </div>
-</li>
-
-                            <!-------------- Offer Management ------------------>
-
-<li class="nav-item">
-    <a class="nav-link" href="#" data-toggle="collapse" aria-expanded="false" data-target="#submenu-12" aria-controls="submenu-12"><i class="fas fa-fw fa-map-marker-alt"></i>Offer Management</a>
-    <div id="submenu-12" class="collapse submenu" style="">
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'admin_offers' %}">View Offer</a>
-            </li>
-           
-        </ul>
-    </div>
-</li>
 
                         </ul>
+                        {% endwith %}
                     </div>
                 </nav>
             </div>

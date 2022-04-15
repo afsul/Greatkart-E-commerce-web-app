@@ -20,10 +20,10 @@
             {% endif %}
           </div>
         </div> <!-- card.// -->
-        <div class="card">
-          <h5 class="card-header">Payment Method</h5>
-          <div class="card-body">
-            <p class="card-text">PayPal</p>
+        <div class="card"  style="background-color: transparent; border:none;">
+        
+          <div class="card-body" style="background-color: transparent;">
+
 
           </div>
         </div> <!-- card.// -->
@@ -119,11 +119,19 @@
               <div id="paypal_container"> {{ form.render }}</div>
 
 
-              <form action="order_complete" method="POST">
-                {% csrf_token %}  
+              <!-- <form action="order_complete" method="POST">
+                {% csrf_token %}   -->
                 <!-- RAZORPAY INTEGRATION HERE -->
 
-                <script src="https://checkout.razorpay.com/v1/checkout.js"
+                <!-- <script src="https://checkout.razorpay.com/v1/checkout.js"
+                data-key="rzp_test_N9YYgyoIQNNsad"
+                data-amount="amount"
+                data-currency="INR"
+                data-order_id="{{payment.id}}"
+                data-buttontext="Pay with Razorpay"
+                data-name="Professional Cipher"
+                data-description="Django and Data Science"
+                data-image="https://exam <script src="https://checkout.razorpay.com/v1/checkout.js"
                 data-key="rzp_test_N9YYgyoIQNNsad"
                 data-amount="amount"
                 data-currency="INR"
@@ -136,7 +144,12 @@
                 data-prefill.email="pc@studygyaan.com"
                 data-theme.color="#1E90FF">
                 </script>
-              </form>
+              </form>ple.com/your_logo.jpg"  
+                data-prefill.name="PC"
+                data-prefill.email="pc@studygyaan.com"
+                data-theme.color="#1E90FF">
+                </script>
+              </form> -->
 
 
            <!-- cash on delivery  -->
@@ -170,7 +183,7 @@
       'code': code,
       'csrf_token': '{{csrf_token}}'
     }
-    console.log(code)
+    console.log(code) 
     $.ajax({
       url: "{% url 'verify_coupon' %}",
       method: "POST", 

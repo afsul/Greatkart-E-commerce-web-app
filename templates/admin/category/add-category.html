@@ -47,14 +47,16 @@
                         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
                             <div class="card">
                                 <div class="card-body">
-                                    <form method="POST" action="add_category" enctype="multipart/form-data">
+                                    {% include 'includes/alerts.html' %}
+                                    <form method="POST" action="{% url 'add_category' %}" enctype="multipart/form-data">
                                         {% csrf_token %}
                                         {{ form }}
                                    
                                     <div class="form-group col-lg-8 mt-3 ">
                                     <button type="submit" class="btn btn-success">Save</button>
                                 </div>
-                            </form>
+                                   </form>
+                                   
                                 </div>
                             </div>
                         </div>

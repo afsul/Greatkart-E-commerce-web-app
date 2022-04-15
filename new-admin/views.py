@@ -120,12 +120,25 @@ def category(request):
 
 # Category Add
 def add_category(request):
-    context={}
-    form = CategoryForm(request.POST or None, request.FILES or None)
-    if form.is_valid():
-        form.save()
-    context['form']= form
-    return render(request, 'admin/category/add-category.html', context)
+    
+    if request.method == 'POST':
+        print(50*'*'+"enter to add product")
+        form = CategoryForm(request.POST or None, request.FILES or None)
+        if form.is_valid():
+            form.save()
+        messages.success(request,'Successfully new category added')
+        context = {
+            'form':form
+        }
+        return render(request, 'admin/category/add-category.html', context)
+    else:
+        form = CategoryForm(request.POST or None, request.FILES or None)
+        
+        context = {
+        'form':form
+                 }
+        return render(request, 'admin/category/add-category.html', context)
+
 
 # Category edit
 @login_required()
@@ -214,13 +227,14 @@ def add_product(request):
                     return render(request, 'admin/products/add_product.html', context)  
                 
 
+
 #producgt gallery
 def add_product_gallery_image(request):
     print('Entered to add product gallery5555555555555555555555555555555555555555555555555555555')
     form = ProductGalleryForm(request.POST or None, request.FILES or None)
-    print("After form")
-    print(form)
-
+    if form.is_valid():
+        form.save()
+    
     context = {                           
                 'form':form,
             }
