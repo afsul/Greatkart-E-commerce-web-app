@@ -39,6 +39,7 @@ def place_order(request, total=0, quantity=0,):
     import datetime
     try:
         address_id = request.POST['ship_address']
+        
     except:
         messages.error(request,'Select a valid address')
         return redirect('checkout')
@@ -48,6 +49,7 @@ def place_order(request, total=0, quantity=0,):
     cart_count = cart_items.count()
     if cart_count <=0:
         return redirect('store')
+
 
     grand_total = 0
     tax         = 0
@@ -99,43 +101,31 @@ def place_order(request, total=0, quantity=0,):
         data.order_number       = order_number
         data.save()
 
+        request.session['order_number'] = data.order_number
+        order_num =  request.session['order_number']
+
 
         
         
        
-        order = Order.objects.get(user = request.user,order_number= order_number,is_ordered = False)
-        print('order found------>', order)
+        order = Order.objects.get(user = request.user,order_number= order_number)
         code = order.coupon
-        print(code,'checking coupon')
-        from datetime import datetime   
-        now = datetime.now()
-        print('going to check coupon')
+
         try:
-          
+            
+        
             coupon = Coupon.objects.get(code=code,active=True)
 
-            print(coupon,'%$'*45)
             if coupon:
-                    
+                    print("Entered to coupon try")
                     discount = coupon.discount
-                    order_no = order.order_number            
                     current_user = request.user
-                    cart_items = CartItem.objects.filter(user = current_user)
-                    grand_total = 0
-                    tax = 0
-                    total = 0
-                    quantity = 0
-                    for cart_item in cart_items:
-                        total   += (cart_item.product.price * cart_item.quantity)
-                        quantity += cart_item.quantity
-                   
+                    total = order.order_total 
                     tax = round((5 * total)/100,2)
                     grand_total = round(total + tax,2)
                     discount_amount = round(grand_total * discount/100,2)
-            print(discount_amount,'discount amount')
+
             total_after_coupon = round(float(grand_total - discount_amount),2)
-            print(grand_total,'total')
-            print(total_after_coupon,'amount after discount')
             
             order.discount_amount = discount_amount
             order.nett_paid = total_after_coupon
@@ -143,16 +133,10 @@ def place_order(request, total=0, quantity=0,):
             order.save()
         except Coupon.DoesNotExist:
             print("Entered to except"+"89"*45)
-            order_no = order.order_number  
             current_user = request.user
             cart_items = CartItem.objects.filter(user = current_user)
             grand_total = 0
-            tax = 0
-            total = 0
-            quantity = 0
-            for cart_item in cart_items:
-                total   += (cart_item.product.price * cart_item.quantity)
-                quantity += cart_item.quantity
+            total = data.order_total
             tax = round((5 * total)/100,2)
             grand_total = round(total + tax,2)
             order.nett_paid = grand_total
@@ -174,22 +158,27 @@ def place_order(request, total=0, quantity=0,):
         'notify_url': 'http://{}{}'.format(host,
                                            reverse('paypal-ipn')),
         'return_url': 'http://{}{}'.format(host,
-                                           reverse('order_complete')),
+                                           reverse('paypal_order_complete')),
         'cancel_return': 'http://{}{}'.format(host,
                                               reverse('place_order')),
         }
 
         form = PayPalPaymentsForm(initial=paypal_dict)
+            
         
 
         # print("Entering to this view razorpa")
-        # amount = int(order.nett_paid  * 100)
+        # amount = 
         # print(amount, "printed amount")
-        # client = razorpay.Client(auth = ("rzp_test_N9YYgyoIQNNsad" , "4WwWBrZdRQIc2PyicXlcHd5O"))
-        # print(client)
-        # payment = client.order.create({'amount':amount, 'currency':'INR', 'payment_capture':'1' })   
-        # print(payment)
        
+       
+
+        client = razorpay.Client(auth=("rzp_test_N9YYgyoIQNNsad", "4WwWBrZdRQIc2PyicXlcHd5O"))
+
+        data = { "amount": int(order.nett_paid  * 100), "currency": "INR", "receipt": "order_rcptid_11" }
+        payment = client.order.create(data=data)
+        print(payment)
+        # print(total,'<============================================total')
 
  
        
@@ -203,13 +192,210 @@ def place_order(request, total=0, quantity=0,):
             'tax' : tax,
             'grand_total' : grand_total,
             'form' : form,
-            # 'payment':payment,
-            # 'amount':amount
-
+            'payment':payment,
                 }
         return render(request,'orders/payments.html',context)
     else:
         return redirect('checkout')
+
+def paypal_order_complete(request):
+
+    order_number = request.session['order_number']
+
+    order = Order.objects.get(user = request.user, is_ordered = False,order_number=order_number)
+
+  
+    try:
+        code = order.coupon
+        from datetime import datetime
+        now = datetime.now()
+
+        coupon = Coupon.objects.get(code=code)
+        
+
+
+        if coupon:
+            discount = coupon.discount
+            print('discount value',discount)
+        cart_items = CartItem.objects.filter(user = request.user)
+        order.coupon_use_status = True
+        order.save()
+
+
+        payment = Payment(
+                    user = request.user,
+                    payment_id = order_number,
+                    payment_method = "Paypal",
+                    amount_paid = order.nett_paid,
+                    status = "Payment Success",
+                    )
+        payment.save()
+        order.payment= payment 
+        order.is_ordered = True
+        order.coupon_use_status = True
+        order.save()
+
+    
+        cart_items = CartItem.objects.filter(user = request.user)
+        for item in cart_items:
+            orderproduct = OrderProduct()
+            orderproduct.order_id = order.id
+            orderproduct.payment = payment
+            orderproduct.user_id = request.user.id
+            orderproduct.product_id = item.product_id
+            orderproduct.quantity = item.quantity
+            orderproduct.product_price = item.product.price
+            orderproduct.ordered = True
+            orderproduct.save()
+
+            
+            # qunatity decreaing on order
+            product = Product.objects.get(id=item.product_id)
+            product.stock -= item.quantity
+            product.save()
+
+        CartItem.objects.filter(user=request.user).delete()
+    except:
+       
+        payment = Payment(
+                    user = request.user,
+                    payment_id = order_number,
+                    payment_method = "Paypal",
+                    amount_paid = order.nett_paid,
+                    status = "Payment Success",
+                    )
+        payment.save()
+        order.payment= payment 
+        order.is_ordered = True
+        order.coupon_use_status = False
+        order.save()
+
+    
+        cart_items = CartItem.objects.filter(user = request.user)
+        for item in cart_items:
+            orderproduct = OrderProduct()
+            orderproduct.order_id = order.id
+            orderproduct.payment = payment
+            orderproduct.user_id = request.user.id
+            orderproduct.product_id = item.product_id
+            orderproduct.quantity = item.quantity
+            orderproduct.product_price = item.product.price
+            orderproduct.ordered = True
+            orderproduct.save()
+
+            
+            # qunatity decreaing on order
+            product = Product.objects.get(id=item.product_id)
+            product.stock -= item.quantity
+            product.save()
+
+        CartItem.objects.filter(user=request.user).delete()
+
+
+    del request.session['order_number']
+    return redirect('order_complete')
+
+
+
+
+def razorpay_order_complete(request):
+
+    order_number = request.session['order_number']
+
+    order = Order.objects.get(user = request.user, is_ordered = False,order_number=order_number)
+
+
+
+    try:
+        code = order.coupon
+        from datetime import datetime
+        now = datetime.now()
+
+        coupon = Coupon.objects.get(code=code)
+        
+
+
+        if coupon:
+
+
+            payment = Payment(
+                        user = request.user,
+                        payment_id = order_number,
+                        payment_method = "Razorpay",
+                        amount_paid = order.nett_paid,
+                        status = "Payment Success",
+                        )
+            payment.save()
+            order.payment= payment 
+            order.is_ordered = True
+            order.coupon_use_status = True
+            order.save()
+
+
+        cart_items = CartItem.objects.filter(user = request.user)
+        for item in cart_items:
+            orderproduct = OrderProduct()
+            orderproduct.order_id = order.id
+            orderproduct.payment = payment
+            orderproduct.user_id = request.user.id
+            orderproduct.product_id = item.product_id
+            orderproduct.quantity = item.quantity
+            orderproduct.product_price = item.product.price
+            orderproduct.ordered = True
+            orderproduct.save()
+
+            
+            # qunatity decreaing on order
+            product = Product.objects.get(id=item.product_id)
+            product.stock -= item.quantity
+            product.save()
+
+        CartItem.objects.filter(user=request.user).delete()
+    except:
+        
+        payment = Payment(
+                    user = request.user,
+                    payment_id = order_number,
+                    payment_method = "Razorpay",
+                    amount_paid = order.nett_paid,
+                    status = "Payment Success",
+                    )
+        payment.save()
+        order.payment= payment 
+        order.is_ordered = True
+        order.coupon_use_status = False
+        order.save()
+
+
+        cart_items = CartItem.objects.filter(user = request.user)
+        for item in cart_items:
+            orderproduct = OrderProduct()
+            orderproduct.order_id = order.id
+            orderproduct.payment = payment
+            orderproduct.user_id = request.user.id
+            orderproduct.product_id = item.product_id
+            orderproduct.quantity = item.quantity
+            orderproduct.product_price = item.product.price
+            orderproduct.ordered = True
+            orderproduct.save()
+
+            
+            # qunatity decreaing on order
+            product = Product.objects.get(id=item.product_id)
+            product.stock -= item.quantity
+            product.save()
+
+        CartItem.objects.filter(user=request.user).delete()
+
+
+
+    return redirect('order_complete')
+
+
+
+
+
+
 
 
 #COD
@@ -220,7 +406,7 @@ def cod_order_complete(request,order_number):
     order_number = order_number
 
     
-    order = Order.objects.get(user = request.user, is_ordered = False)
+    order = Order.objects.get(user = request.user, is_ordered = False,order_number=order_number)
    
     try:
         code = order.coupon
@@ -403,7 +589,6 @@ def user_order_return(request,order):
 
     return redirect('my_orders')
 razorpay_client = razorpay.Client(auth=(settings.RAZORPAY_API_KEY, settings.RAZORPAY_API_SECRET_KEY))
-
 
 
 

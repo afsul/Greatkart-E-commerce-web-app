@@ -28,7 +28,7 @@ def coupon_apply(request):
             request.session['coupon_id'] = coupon.id
         except Coupon.DoesNotExist:
             request.session['coupon_id'] = None
-    return redirect('place_order')
+    return redirect('checkout')
 
 @csrf_exempt
 def verify_coupon(request):
@@ -61,7 +61,8 @@ def verify_coupon(request):
                         print('program runs this',coupon)
                         discount = coupon.discount
                         # print(discount)
-                        order = Order.objects.get(user = request.user, is_ordered = False)
+                        order_no = request.session['order_number']
+                        order = Order.objects.get(user = request.user, is_ordered = False,order_number=order_no)
                         order_no = order.order_number
                         order.coupon = coupon
                         order.discount = round(discount,2)
@@ -96,8 +97,8 @@ def verify_coupon(request):
                 except:
                     print('except'+"*" * 100)
                     discount = coupon.discount
-                  
-                    order = Order.objects.get(user = request.user,is_ordered = False)
+                    order_no = request.session['order_number']
+                    order = Order.objects.get(user = request.user,is_ordered = False,order_number=order_no)
                     print(order,"oder in ecxept ************************  ")
                     order_no = order.order_number
                     order.coupon = coupon
@@ -141,8 +142,6 @@ def verify_coupon(request):
                 "success":"no_coupon",
             }
             return JsonResponse (context)
-
-
 
 
 
