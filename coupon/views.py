@@ -28,7 +28,7 @@ def coupon_apply(request):
             request.session['coupon_id'] = coupon.id
         except Coupon.DoesNotExist:
             request.session['coupon_id'] = None
-    return redirect('checkout')
+    return redirect('place_order')
 
 @csrf_exempt
 def verify_coupon(request):
@@ -57,55 +57,53 @@ def verify_coupon(request):
                         "success":"coupon already used",
                         }
                         return JsonResponse (context)
-                    else:
-                        print('program runs this',coupon)
-                        discount = coupon.discount
-                        # print(discount)
-                        order_no = request.session['order_number']
-                        order = Order.objects.get(user = request.user, is_ordered = False,order_number=order_no)
-                        order_no = order.order_number
-                        order.coupon = coupon
-                        order.discount = round(discount,2)
-                        order.save()
-                        # print(order_no)
-                        # print('got order')
-                        current_user = request.user
-                        cart_items = CartItem.objects.filter(user = current_user)
-                        grand_total = 0
-                        tax = 0
-                        total = 0
-                        quantity = 0
-                        for cart_item in cart_items:
-                            total   += (cart_item.product.price * cart_item.quantity)
-                            quantity += cart_item.quantity
-                        tax = round((5 * total)/100,2)
-                        grand_total = round(total + tax,2)
+                    # else:
+                    #     print('program runs this',coupon)
+                    #     discount = coupon.discount
+                    #     # print(discount)
+                    #     order = Order.objects.get(user = request.user, is_ordered = False)
+                    #     order_no = order.order_number
+                    #     order.coupon = coupon
+                    #     order.discount = round(discount,2)
+                    #     order.save()
+                    #     # print(order_no)
+                    #     # print('got order')
+                    #     current_user = request.user
+                    #     cart_items = CartItem.objects.filter(user = current_user)
+                    #     grand_total = 0
+                    #     tax = 0
+                    #     total = 0
+                    #     quantity = 0
+                    #     for cart_item in cart_items:
+                    #         total   += (cart_item.product.price * cart_item.quantity)
+                    #         quantity += cart_item.quantity
+                    #     tax = round((5 * total)/100,2)
+                    #     grand_total = round(total + tax,2)
                     
-                        discount_amount = round(grand_total * discount/100,2)
-                        # print(discount_amount,'discount amount')
-                        total_after_coupon = round(float(grand_total - discount_amount),2)
-                        # print(grand_total,'total')
-                        # print(total_after_coupon,'amount after discount')
+                    #     discount_amount = round(grand_total * discount/100,2)
+                    #     # print(discount_amount,'discount amount')
+                    #     total_after_coupon = round(float(grand_total - discount_amount),2)
+                    #     # print(grand_total,'total')
+                    #     # print(total_after_coupon,'amount after discount')
 
-                        context = {
-                            "success":"valid",
-                            "discount_amount": discount_amount,
-                            "total_after_coupon":total_after_coupon,
-                        }
-                        return JsonResponse(context)
+                    #     context = {
+                    #         "success":"valid",
+                    #         "discount_amount": discount_amount,
+                    #         "total_after_coupon":total_after_coupon,
+                    #     }
+                    #     return JsonResponse(context)
                         
                 except:
                     print('except'+"*" * 100)
                     discount = coupon.discount
-                    order_no = request.session['order_number']
-                    order = Order.objects.get(user = request.user,is_ordered = False,order_number=order_no)
+                    print(discount,'discount amount +++++++++++')
+                    order_number = request.session['order_number']
+                    order = Order.objects.get(is_ordered = False,order_number=order_number)
                     print(order,"oder in ecxept ************************  ")
                     order_no = order.order_number
                     order.coupon = coupon
                     order.discount = round(discount,2)
-                    # order.save()
-                    # print(order_no)
-                    # print('got order')
+                    
                     current_user = request.user
                     cart_items = CartItem.objects.filter(user = current_user)
                     grand_total = 0
@@ -132,8 +130,8 @@ def verify_coupon(request):
                         "success":"valid",
                         "discount_amount": discount_amount,
                         "total_after_coupon":total_after_coupon,
-                        'url':''
-                    }
+                        # 'url':''
+                    }   
                     return JsonResponse(context)                    
                     
         except Coupon.DoesNotExist:
@@ -142,6 +140,8 @@ def verify_coupon(request):
                 "success":"no_coupon",
             }
             return JsonResponse (context)
+
+
 
 
 

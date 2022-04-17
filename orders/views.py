@@ -43,13 +43,9 @@ def place_order(request, total=0, quantity=0,):
     except:
         messages.error(request,'Select a valid address')
         return redirect('checkout')
-        
-    current_user = request.user
-    cart_items = CartItem.objects.filter(user=current_user)
-    cart_count = cart_items.count()
-    if cart_count <=0:
-        return redirect('store')
 
+
+    cart_items = CartItem.objects.filter(user=request.user)
 
     grand_total = 0
     tax         = 0
@@ -59,6 +55,8 @@ def place_order(request, total=0, quantity=0,):
 
     tax = (5 * total)/100
     grand_total = total + tax 
+        
+    
     
 
     if request.method == 'POST':
@@ -72,80 +70,27 @@ def place_order(request, total=0, quantity=0,):
             country = i.country
             state = i.state
             city = i.city
+        current_user = request.user
+        order_number =  request.session['order_number'] 
+        
         # Store all the billing information inside Order table
-        data = Order()
-        data.user               = current_user
-        data.first_name         = user.first_name
-        data.last_name          = user.last_name
-        data.phone              = user.phone_number
-        data.email              = user.email
-        data.address_line_1     = address_line_1
-        data.address_line_2     = address_line_2
-        data.country            = country
-        data.state              = state
-        data.city               = city
-        data.order_note         = order_note
-        data.order_total        = grand_total
-
-        data.tax                = tax
-        data.ip                 = request.META.get('REMOTE_ADDR')
-        data.save()
-        #Generate the order number
-
-        yr                      = int(datetime.date.today().strftime('%Y'))
-        dt                      = int(datetime.date.today().strftime('%d'))
-        mt                      = int(datetime.date.today().strftime('%m'))
-        d                       = datetime.date(yr,mt,dt)
-        current_date            = d.strftime("%Y%m%d")
-        order_number            = current_date + str(data.id)
-        data.order_number       = order_number
-        data.save()
-
-        request.session['order_number'] = data.order_number
-        order_num =  request.session['order_number']
-
-
+        order = Order.objects.get(user=current_user,is_ordered = False,order_number = order_number)
+        
+        order.first_name         = current_user.first_name
+        order.last_name          = current_user.last_name
+        order.phone              = current_user.phone_number
+        order.email              = current_user.email
+        order.address_line_1     = address_line_1
+        order.address_line_2     = address_line_2
+        order.country            = country
+        order.state              = state
+        order.city               = city
+        order.order_note         = order_note
+        order.tax                = tax
+        order.ip                 = request.META.get('REMOTE_ADDR')
+        order.save()
         
         
-       
-        order = Order.objects.get(user = request.user,order_number= order_number)
-        code = order.coupon
-
-        try:
-            
-        
-            coupon = Coupon.objects.get(code=code,active=True)
-
-            if coupon:
-                    print("Entered to coupon try")
-                    discount = coupon.discount
-                    current_user = request.user
-                    total = order.order_total 
-                    tax = round((5 * total)/100,2)
-                    grand_total = round(total + tax,2)
-                    discount_amount = round(grand_total * discount/100,2)
-
-            total_after_coupon = round(float(grand_total - discount_amount),2)
-            
-            order.discount_amount = discount_amount
-            order.nett_paid = total_after_coupon
-            order.coupon_use_status = True
-            order.save()
-        except Coupon.DoesNotExist:
-            print("Entered to except"+"89"*45)
-            current_user = request.user
-            cart_items = CartItem.objects.filter(user = current_user)
-            grand_total = 0
-            total = data.order_total
-            tax = round((5 * total)/100,2)
-            grand_total = round(total + tax,2)
-            order.nett_paid = grand_total
-            order.coupon_use_status = False
-            order.save()
-           
-                
-               
-
 
         # Paypal
         host = request.get_host()
@@ -166,16 +111,14 @@ def place_order(request, total=0, quantity=0,):
         form = PayPalPaymentsForm(initial=paypal_dict)
             
         
-
-        # print("Entering to this view razorpa")
-        # amount = 
-        # print(amount, "printed amount")
+        #=======================Razorpay==========================
        
-       
-
+        order = Order.objects.get(user = current_user, is_ordered = False, order_number = order_number)
+        print(order.nett_paid,'this is net paid ======================================')
         client = razorpay.Client(auth=("rzp_test_N9YYgyoIQNNsad", "4WwWBrZdRQIc2PyicXlcHd5O"))
+        amount  = float(order.nett_paid) * 100
 
-        data = { "amount": int(order.nett_paid  * 100), "currency": "INR", "receipt": "order_rcptid_11" }
+        data = { "amount":amount  , "currency": "INR", "receipt": "order_rcptid_11" }
         payment = client.order.create(data=data)
         print(payment)
         # print(total,'<============================================total')
@@ -192,7 +135,7 @@ def place_order(request, total=0, quantity=0,):
             'tax' : tax,
             'grand_total' : grand_total,
             'form' : form,
-            'payment':payment,
+            'amount':amount,
                 }
         return render(request,'orders/payments.html',context)
     else:

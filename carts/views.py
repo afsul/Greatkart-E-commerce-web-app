@@ -1,9 +1,11 @@
+from datetime import datetime
+import datetime
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from accounts.models import Account, UserProfile
 from carts.models import Cart, CartItem
 from django.core.exceptions import ObjectDoesNotExist
-from orders.models import Address
+from orders.models import Address, Order
 from store.models import Product
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import cache_control
@@ -120,6 +122,7 @@ def cart(request, total=0, quantity=0, cart_items=None):
 
 @login_required(login_url='login')
 def checkout(request, total=0, quantity=0, cart_items=None):
+    
     # tax =0
     # grand_total=0
     try:
@@ -130,11 +133,40 @@ def checkout(request, total=0, quantity=0, cart_items=None):
 
             cart = Cart.objects.get(cart_id=_cart_id(request))
             cart_items = CartItem.objects.filter(cart=cart, is_active=True)
+        current_user = request.user
+        cart_items = CartItem.objects.filter(user=current_user)
+        cart_count = cart_items.count()
+        if cart_count <=0:
+            return redirect('store')
+
+
+        grand_total = 0
+        tax         = 0
         for cart_item in cart_items:
             total += (cart_item.product.price * cart_item.quantity)
             quantity += cart_item.quantity
+
         tax = (5 * total)/100
-        grand_total = total + tax
+        grand_total = total + tax 
+        current_user = request.user
+        order = Order()
+          #Generate the order number
+        order.user               = current_user
+        order.tax               = tax
+        yr                      = int(datetime.date.today().strftime('%Y'))
+        dt                      = int(datetime.date.today().strftime('%d'))
+        mt                      = int(datetime.date.today().strftime('%m'))
+        d                       = datetime.date(yr,mt,dt)
+        current_date            = d.strftime("%Y%m%d")
+        order.order_total       = grand_total
+        order.nett_paid         = grand_total
+        order.save()
+        order_number            = current_date + str(order.id)
+        order.order_number      = order_number
+
+        
+        order.save()
+        request.session['order_number'] =  order.order_number
     except ObjectDoesNotExist:
         pass #just ignore
     address = Address.objects.filter(user=request.user)

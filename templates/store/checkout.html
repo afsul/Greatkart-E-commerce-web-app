@@ -87,11 +87,102 @@
                         <button type="submit" class="btn btn-primary btn-block">Place Order</button>
                         <a href="{% url 'store' %}" class="btn btn-light btn-block">Continue Shopping</a>
                         </form>
+
+                        <aside class="col-lg-12 mt-2">
+
+                            <div class="card">
+                              <div class="card-body">
+                                <dl class="dlist-align">
+                                  <dt>Total price:</dt>
+                                  <dd class="text-right">$ {{ total }}</dd>
+                                </dl>
+                                <dl class="dlist-align">
+                                  <dt>Tax:</dt>
+                                  <dd class="text-right"> $ {{ tax }}</dd>
+                                </dl>
+                                <dl class="dlist-align">
+                                  <dt>Grand Total:</dt>
+                                  <dd class="text-right text-dark b"><strong>$ {{ grand_total }}</strong></dd>
+                                </dl>
+                                <span id="discountsID" hidden>
+                                  <dl class="dlist-align">
+                                    <dt>Discount amount:</dt>
+                                    <dd class="text-right" id="discAmount"> </dd>
+                                  </dl>
+                                  <dl class="dlist-align">
+                                    <dt>Nett Payable:</dt>
+                                    <dd class="text-right text-dark b" id="discGrandTotal" style="color: darkgreen;"> <strong> amount
+                                      </strong></dd>
+                                  </dl>
+                                </span></div></div></aside>
+                    
+                        Payment</a> -->
+
+                        <!-- Coupon  -->
+                        <input type="text" id="couponInp" class="form-control mb-2">
+                        <span id="couponAlert" style="color:orange;" class="text-center"></span>
+                        <span id="couponSuccessAlert" style="color:green;" class="text-center"></span>
+                        <button onclick="claimCoupon()" class="btn btn-primary btn-block mb-2 mt-2" id="claimButton">Claim
+                          Coupons</button>
                     </div>
                 </div>
             </aside>
         </div>
     </div>
 </section>
+
+<!--====================== Coupon Start ======================-->
+<script>
+    function claimCoupon() {
+      document.getElementById('couponAlert').innerText = ""
+      console.log("I am here")
+      /* alert("coupon claim button clicked") */
+      var code = document.getElementById('couponInp').value
+      /* alert(code) */
+      var data = {
+        'code': code,
+        'csrf_token': '{{csrf_token}}'
+      }
+      console.log(code) 
+      $.ajax({
+        url: "{% url 'verify_coupon' %}",
+        method: "POST", 
+        data: data,
+  
+        success: function (response) {
+          var coupon = response.success
+          if (coupon == "valid") {
+            console.log("Coupon Verified Successfully")
+            document.getElementById('couponSuccessAlert').innerText = "Coupon successfully applied."
+            document.getElementById('couponInp').hidden = true
+            document.getElementById('claimButton').disabled = true
+            document.getElementById('discountsID').hidden = false
+            document.getElementById('discGrandTotal').innerText = response.total_after_coupon
+            document.getElementById('discAmount').innerText = response.discount_amount
+            const pay_pal_value = document.getElementById('id_amount')
+            pay_pal_value.value = response.total_after_coupon
+  
+            disAmount = response.total_after_coupon
+      
+          } else if (coupon == "coupon already used") {
+            document.getElementById('couponAlert').innerText = "Coupon already used."
+  
+            console.log("coupon already used")
+          } else {
+            document.getElementById('couponAlert').innerText = "Invalid Coupon..!!"
+  
+            console.log("not a valid coupon")
+          }
+        }
+      })
+    }
+  
+  
+    let url=window.location.href
+    console.log(url)
+  </script>
+  <script src="{% static 'js/jquery-2.0.0.min.js' %}" type="text/javascript"></script>
+  
+   <!--====================== Coupon End ======================-->
 
 {% endblock %}
