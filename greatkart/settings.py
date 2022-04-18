@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
@@ -92,11 +93,11 @@ AUTH_USER_MODEL =  'accounts.Account'
 DATABASES = {
     'default':{
       'ENGINE':'django.db.backends.postgresql_psycopg2',
-      'NAME':'greatkart',
-      'USER':'afsul',
-      'PASSWORD':'1234567890',
-      'HOST':'localhost',
-      'PORT':'5432',
+      'NAME':config('dbusername'),
+      'USER':config('dbuser'),
+      'PASSWORD':config('dbpassword'),
+      'HOST':config('dbhost'),
+      'PORT':config('dbport'),
    }
 }
 
@@ -158,18 +159,18 @@ MESSAGE_TAGS = {
 
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'afsulullattil@gmail.com'
-EMAIL_HOST_PASSWORD = '$Afsul0007'
+EMAIL_HOST_USER = config('emailhostuser')
+EMAIL_HOST_PASSWORD = config('emailhostpassword')
 EMAIL_USE_TLS = True
 
 
 
 
-RAZORPAY_API_KEY = 'rzp_test_N9YYgyoIQNNsad'
-RAZORPAY_API_SECRET_KEY = '4WwWBrZdRQIc2PyicXlcHd5O'
+RAZORPAY_API_KEY = config('razorpayapikey')
+RAZORPAY_API_SECRET_KEY = config('razorpayapisecretkey')
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880
 
-PAYPAL_RECEIVER_EMAIL = 'afsulult@gmail.com'
+PAYPAL_RECEIVER_EMAIL = config('paypalrecieveremail')
 
 PAYPAL_TEST = True

@@ -17,6 +17,7 @@ import razorpay
 from .forms import RegistrationfForm, UserForm, UserProfileForm
 import requests
 from .private import TWILIO_SERVICE_SID,TWILIO_ACCOUNT_SID,TWILIO_AUTH_TOKEN
+from decouple import config
 
 # #Vefication email
 # from django.contrib.sites.shortcuts import get_current_site
@@ -62,10 +63,10 @@ def register(request):
                     user_mobile = "+91" + phone_number
 
                     # Your Account Sid and Auth Token from twilio.com / console
-                    account_sid = TWILIO_ACCOUNT_SID
-                    auth_token = TWILIO_AUTH_TOKEN
+                    account_sid = config('TWILIO_ACCOUNT_SID')
+                    auth_token = config('TWILIO_AUTH_TOKEN')
                     client = Client(account_sid, auth_token)
-                    verification = client.verify.services(TWILIO_SERVICE_SID).verifications.create(to=user_mobile, channel="sms")
+                    verification = client.verify.services(config('TWILIO_SERVICE_SID')).verifications.create(to=user_mobile, channel="sms")
 
                     print(verification.status)
                     return redirect("new_user_otp_varification")
@@ -85,12 +86,12 @@ def new_user_otp_varification(request):
             user_mobile = "+91" + mobile
 
             # twilio code for otp generation
-            account_sid = TWILIO_ACCOUNT_SID
-            auth_token = TWILIO_AUTH_TOKEN
+            account_sid = config('TWILIO_ACCOUNT_SID')
+            auth_token = config('TWILIO_AUTH_TOKEN')
             client = Client(account_sid, auth_token)
 
             verification_check = client.verify \
-                            .services(TWILIO_SERVICE_SID) \
+                            .services(config('TWILIO_SERVICE_SID')) \
                             .verification_checks \
                             .create(to=user_mobile, code=otp)
             print(verification_check.status)
