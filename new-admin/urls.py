@@ -37,9 +37,9 @@ urlpatterns = [
 
     #sales report
     # path('sales_report/',views.sales_report, name = 'sales_report'),
-    # path('export_csv/',views.export_csv,name="export_csv"),
+    path('export_csv/',views.export_csv,name="export_csv"),
     path('adminsale',views.adminsale,name='adminsale'),
-    path('export_excel',views.export_excel,name='export_excel'),
+    # path('export_excel',views.export_excel,name='export_excel'),
     
 
 

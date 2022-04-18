@@ -371,15 +371,15 @@ def update_order_status(request, order_number):
 
 
 
-# def export_csv(request):
-#     order_data = Order.objects.all()
-#     response = HttpResponse(content_type='text/csv')
-#     response['Content-Disposition'] = 'attachment; filename=GreatKart_Sales_Report'+'.csv'
-#     writer = csv.writer(response)   
-#     writer.writerow(['Customer Name', 'Order No', 'Order Date', 'City','State','Order Amount','Status'])
-#     for data in order_data:
-#         writer.writerow([data.full_name, data.order_number, data.created_at,data.city, data.state,data.order_total,data.status])
-#     return response
+def export_csv(request):
+    order_data = Order.objects.all()
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename=GreatKart_Sales_Report'+'.csv'
+    writer = csv.writer(response)   
+    writer.writerow(['Customer Name', 'Order No', 'Order Date', 'City','State','Order Amount','Status'])
+    for data in order_data:
+        writer.writerow([data.full_name, data.order_number, data.created_at,data.city, data.state,data.order_total,data.status])
+    return response
 
 
 # @never_cache
@@ -388,6 +388,7 @@ def adminsale(request):
     page = 'salesreport'
     global order_data
     order_data = Order.objects.filter(is_ordered=True)
+    print('this is order data',order_data)
     yr = []
     ag = 2000
     months = ['January', 'February', 'March','April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
@@ -397,12 +398,18 @@ def adminsale(request):
         datestr = request.POST.get('dates')
             #start date
         mo = datestr[:2]
+        print('this is month',mo)
         da = datestr[3:5]
+        print('this is day',da)
         ye = datestr[6:10]
+        print('this is year',ye)
         #enddate
         mo1 = datestr[13:15]
+        print('this is end day',mo1)
         da1 = datestr[16:18]
+        print('this is end day',da1)
         ye1 = datestr[19:]
+        print('this is end year',ye1)
         from_date = ye+'-'+mo+'-'+da
         to_date = ye1+'-'+mo1+'-'+da1
         
@@ -431,48 +438,48 @@ def export_csv(request):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename=SalesReport'+str(datetime.datetime.now())+'.csv'
     writer = csv.writer(response)   
-    writer.writerow(['User Id','Name','Number Of Products','Order Date','Amount','Payment Type'])
+    writer.writerow(['Customer Id','Name','Email','Payment Type','City','Ordered Date','Amount'])
     print('here is the error')
-    # order_data = OrderItem.objects.filter(order_payments_status='Completed')
+    order_data = Order.objects.filter(is_ordered=True)
     for data in order_data:
-        writer.writerow([data.order.user.id, data.order.user, data.order.get_cart_items, data.order.date_order,data.order.payments.total_amount , data.order.payments.payment_method])
+        writer.writerow([data.id, data.first_name, data.email, data.payment.payment_method,data.city,data.created_at,data.nett_paid])
     return response
 
 
 
-# @never_cache
-def export_excel(request):
+# # @never_cache
+# def export_excel(request):
 
-    response = HttpResponse(content_type='application/ms-excel')
-    response['Content-Disposition'] = 'attachment; filename=SalesReport'+str(datetime.datetime.now())+'.xls'
-    wb = xlwt.Workbook(encoding='utf-8')
-    ws = wb.add_sheet('Sales Report')
-    row_num = 0
-    font_style = xlwt.XFStyle()
-    font_style.font.bold = True
-    columns = ['User Id','Name','Order Date','Amount','Payment Type']
-    order_data = Order.objects.filter(is_ordered=True)
+#     response = HttpResponse(content_type='application/ms-excel')
+#     response['Content-Disposition'] = 'attachment; filename=SalesReport'+str(datetime.datetime.now())+'.xls'
+#     wb = xlwt.Workbook(encoding='utf-8')
+#     ws = wb.add_sheet('Sales Report')
+#     row_num = 0
+#     font_style = xlwt.XFStyle()
+#     font_style.font.bold = True
+#     columns = ['User Id','Name','Order Date','Amount','Payment Type']
+#     order_data = Order.objects.filter(is_ordered=True)
 
-    for col_num in range(len(columns)):
-        ws.write(row_num,col_num,columns[col_num],font_style)
+#     for col_num in range(len(columns)):
+#         ws.write(row_num,col_num,columns[col_num],font_style)
 
-    font_style = xlwt.XFStyle()
+#     font_style = xlwt.XFStyle()
 
-    rows = order_data.values_list(
-        # 'id','order_customer','order_date','payment_total_amount','payment_payment_method'
-        # 'id','user__username','date_order','order_status','status'
-        'id','user__username','created_at','order__status','status'
-    )
+#     rows = order_data.values_list(
+#         # 'id','order_customer','order_date','payment_total_amount','payment_payment_method'
+#         # 'id','user__username','date_order','order_status','status'
+#         'id','user__username','created_at','order__status','status'
+#     )
     
 
-    for row in rows:
-        row_num = row_num + 1
+#     for row in rows:
+#         row_num = row_num + 1
 
-        for col_num in range(len(columns)):
-             ws.write(row_num,col_num,str(row[col_num]),font_style)
-    wb.save(response)
+#         for col_num in range(len(columns)):
+#              ws.write(row_num,col_num,str(row[col_num]),font_style)
+#     wb.save(response)
 
-    return response
+#     return response
     
 
 

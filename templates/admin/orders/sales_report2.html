@@ -89,13 +89,13 @@
             <p class="stat-cards-info__num"><input type="text" class="ms-2" name="dates"  /></p>
             <p class="stat-cards-info__title">SelectBy Range:</p>
             <div class="d-flex " style="justify-content: space-between;">
-               <button class="btn btn-success m-1" style="width: 30%;" id="submit_date" type="submit">OK</button>
+               <!-- <button class="btn btn-success m-1" style="width: 30%;" id="submit_date" type="submit">OK</button> -->
                <!-- <a class="btn btn-danger m-1" style="width: 30%;" href="{% url 'adminsale' %}">RESET</a> -->
             </div>
          </div>
       </article>
    </div>
-   <div class=" col-xl-4 mb-1" >
+   <div class=" col-xl-4 mb-1 " >
       <article class="stat-cards-item">
          <div class="stat-cards-info" style="width: 100%;"  >
             <p class="stat-cards-info__num">
@@ -106,9 +106,9 @@
                   {% endfor %}
                </select>
             </p>
-            <p class="stat-cards-info__title">Select By Month :</p>
+            <p class="stat-cards-info__title" >Select By Month :</p>
             <div class="d-flex " style="justify-content: space-between;">
-               <button class="btn btn-success m-1" style="width: 30%;" id="submit_date" type="submit">OK</button>
+               <button class="btn btn-warning m-2 btn-block" style=" border-radius:25px" id="submit_date" type="submit"><i class="fas fa-filter"></i> &nbspFilter</button>
                <!-- <a class="btn btn-danger m-1" style="width: 30%;" href="{% url 'adminsale' %}">RESET</a> -->
             </div>
          </div>
@@ -127,7 +127,7 @@
             </p>
             <p class="stat-cards-info__title">Select By Year :</p>
             <div class="d-flex " style="justify-content: space-between;">
-               <button class="btn btn-success m-1" style="width: 30%;" id="submit_date" type="submit">OK</button>
+               <!-- <button class="btn btn-success m-1" style="width: 30%;" id="submit_date" type="submit">OK</button> -->
                <!-- <a class="btn btn-danger m-1" style="width: 30%;" href="{% url 'adminsale' %}">RESET</a> -->
             </div>
          </div>
@@ -207,7 +207,7 @@
          </div>
        
          <div class="col-lg-3  mb-2 me-auto">
-            <a href="{% url 'export_excel' %}"  class="btn btn-primary mt-3">Excel</a>
+            <a href="{% url 'export_csv' %}"  class="btn btn-primary mt-3">Excel</a>
             <button id="topdf"  class="btn btn-primary mt-3" >PDF</button>
             <button   onclick = "print()" class="btn btn-primary mt-3">Print</button>
 
