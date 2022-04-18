@@ -1,0 +1,392 @@
+
+
+  {% load static %}
+
+<!doctype html>
+<html lang="en">
+ 
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}">
+    <link href="{% static 'assets/vendor/fonts/circular-std/style.css' %}" rel="stylesheet">
+     <link rel="stylesheet" href="{% static 'assets/libs/css/style.css' %}">
+     <link rel="stylesheet" href="{% static 'assets/vendor/fonts/fontawesome/css/fontawesome-all.css' %}">
+     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+
+
+
+
+    <title>GreatKart</title>
+</head>
+
+<body>
+    
+    <div class="dashboard-main-wrapper">
+       
+   {% include 'admin/includes/admin-navbar.html' %}
+   {% include 'admin/includes/admin-menubar.html' %}
+        <div class="dashboard-wrapper">
+            <div class="dashboard-ecommerce">
+                <div class="container-fluid dashboard-content ">
+                 
+                   
+            
+{% block content %}
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+<!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+ integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous" /> -->
+ <!-- <script src="html2pdf.bundle.min.js"></script> -->
+
+ <!-- ============================================================== -->
+     
+        <!-- ============================================================== -->
+        <!-- ============================================================== -->
+        <!-- wrapper  -->
+        <!-- ============================================================== -->
+        
+        <div class="container-fluid  dashboard-content">
+         <!-- ============================================================== -->
+         <!-- pageheader -->
+         <!-- ============================================================== -->
+         <div class="row">
+             <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                 <div class="page-header">
+                     <h2 class="pageheader-title">Sales Report</h2>
+                     <p class="pageheader-text"></p>
+                     <div class="page-breadcrumb">
+                         <nav aria-label="breadcrumb">
+                             <ol class="breadcrumb">
+                                 <li class="breadcrumb-item"><a href="#" class="breadcrumb-link">Dashboard</a></li>
+                                 <li class="breadcrumb-item"><a href="#" class="breadcrumb-link">Sales Report</a></li>
+                                 <li class="breadcrumb-item active" aria-current="page"></li>
+                             </ol>
+                         </nav>
+                     </div>
+                 </div>
+             </div>
+         </div>
+         <!-- ============================================================== -->
+         <!-- end pageheader -->
+         <!-- ============================================================== -->
+         <div class="row">
+             <!-- ============================================================== -->
+             <!-- hoverable table -->
+                 <!-- ============================================================== -->
+                 <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                     <div class="card">
+                         <h5 class="card-header">Sales Report</h5>
+                         <div class="card-body">
+  <form action="" method="post">
+   {% csrf_token %}
+   <div class="row m-1 stat-cards">
+   <div class=" col-xl-4 mb-1 " >
+      <article class="stat-cards-item " >
+         <div class="stat-cards-info " style="width: 100%;" >
+            <p class="stat-cards-info__num"><input type="text" class="ms-2" name="dates"  /></p>
+            <p class="stat-cards-info__title">SelectBy Range:</p>
+            <div class="d-flex " style="justify-content: space-between;">
+               <button class="btn btn-success m-1" style="width: 30%;" id="submit_date" type="submit">OK</button>
+               <!-- <a class="btn btn-danger m-1" style="width: 30%;" href="{% url 'adminsale' %}">RESET</a> -->
+            </div>
+         </div>
+      </article>
+   </div>
+   <div class=" col-xl-4 mb-1" >
+      <article class="stat-cards-item">
+         <div class="stat-cards-info" style="width: 100%;"  >
+            <p class="stat-cards-info__num">
+               <select name="month" id="">
+                  <option value="">---------</option>
+                  {% for month in months %}
+                  <option value="{{ forloop.counter }}">{{ month }}</option>
+                  {% endfor %}
+               </select>
+            </p>
+            <p class="stat-cards-info__title">Select By Month :</p>
+            <div class="d-flex " style="justify-content: space-between;">
+               <button class="btn btn-success m-1" style="width: 30%;" id="submit_date" type="submit">OK</button>
+               <!-- <a class="btn btn-danger m-1" style="width: 30%;" href="{% url 'adminsale' %}">RESET</a> -->
+            </div>
+         </div>
+      </article>
+   </div>
+   <div class=" col-xl-4 mb-1"  >
+      <article class="stat-cards-item"  >
+         <div class="stat-cards-info" style="width: 100%;">
+            <p class="stat-cards-info__num">
+               <select name="year" id="">
+                  <option value="">---------</option>
+                  {% for year in years %}
+                  <option value="{{ year }}">{{ year }}</option>
+                  {% endfor %}
+               </select>
+            </p>
+            <p class="stat-cards-info__title">Select By Year :</p>
+            <div class="d-flex " style="justify-content: space-between;">
+               <button class="btn btn-success m-1" style="width: 30%;" id="submit_date" type="submit">OK</button>
+               <!-- <a class="btn btn-danger m-1" style="width: 30%;" href="{% url 'adminsale' %}">RESET</a> -->
+            </div>
+         </div>
+      </article>
+   </div>
+   </form>
+</div>
+ <main class="main users chart-page" id="skip-target">
+   <div class="container ">
+      <div class="row" id="salestable" >
+         <div class="col-lg-12" >
+            <div class="table users-table table-wrapper"  >
+               <div>
+                  <table id="invoice" class="posts-table table " style="width:100%" >
+                     <thead >
+                        <tr class="users-table-info">
+                          
+                           <th>Customer Name</th>
+                           <th>Email</th>
+                           <th>City</th>
+                           <th>Payment Type</th>
+                           <th>Ordered Date</th>
+                           <th>Amount</th>
+
+                           
+                          
+                           
+                          
+                           
+                        </tr>
+                     </thead>
+                     <tbody>
+                       
+                        {% for data in order_data %}
+                        
+                        <tr>
+                           <td>
+                              {{data.first_name}} {{data.last_name}}
+                           </td>
+                           <td>
+                              {{ data.email }}
+                           </td>
+                           <td>
+                              {{ data.city }}
+                           </td>
+                           <td>
+                              {{data.payment.payment_method}}
+                           </td>
+                             
+                           </td>
+                           <td>
+                              {{data.created_at}}
+                           </td>
+                           <td>
+                              {{data.nett_paid}}
+                           </td>
+                           <td>
+                              {{data.order.payment.payment_method}}
+                           </td>
+                        </tr>
+                        {% endfor %}
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+      </div>
+      <div class="row m-1 ">
+         {% comment %} 
+         <div class="col-lg-4 mb-2" >
+            <a href="{% url 'export_csv' %}" style="width: 100%;" class="btn btn-secondary">Export CSV</a>
+         </div>
+         {% endcomment %}
+         <div class="col-lg-9  mb-2">
+            
+
+         </div>
+       
+         <div class="col-lg-3  mb-2 me-auto">
+            <a href="{% url 'export_excel' %}"  class="btn btn-primary mt-3">Excel</a>
+            <button id="topdf"  class="btn btn-primary mt-3" >PDF</button>
+            <button   onclick = "print()" class="btn btn-primary mt-3">Print</button>
+
+         </div>
+      </div>
+   </div>
+</main>
+
+
+
+<!--necessary CDN files-->
+<script src="{% static 'admin/js/html2pdf.bundle.js' %}"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.22/pdfmake.min.js"></script>
+<!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script> -->
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<!-- <script src="https://checkout.razorpay.com/v1/checkout.js"></script> -->
+<!-- <script src="https://www.paypal.com/sdk/js?client-id=AeS1O53pS0XIj2PQq6VCwSi4eTAhyFwrm04d-I8l8sYKaPdVOOFPq87afE5QgTGDQM6jd-K01_5Mu2p-&currency=USD" data-sdk-integration-source="button-factory"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+    crossorigin="anonymous"></script> -->
+
+<!-- <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
+    integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p"
+    crossorigin="anonymous"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
+    integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF"
+    crossorigin="anonymous"></script> -->
+<!-- <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script> -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+
+
+
+    <!--javascript codes-->
+
+<!-- <script src="{% static 'admin/js/html2pdf.bundle.js'%}"></script> -->
+  
+ <!-- <script>
+  
+    document.getElementById('topdf').onclick = function() {
+      alert('this  is pdf')
+      var element = document.getElementById('salestable');
+      var date = new Date().toISOString().slice(0,19);
+      var opt = {
+        margin:     1,
+        filename: 'Salesreport' +date + '.pdf',
+        image: { type: 'jpeg', quality: 0.98},
+        html2canvas: { scale: 2},
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait'}
+  
+      }
+      
+      html2pdf(element, opt)
+  
+    };
+    function Export() {
+      html2canvas(document.getElementById('invoice'), {
+          onrendered: function (canvas) {
+              var data = canvas.toDataURL();
+              var docDefinition = {
+                  content: [{
+                      image: data,
+                      width: 500
+                  }]
+              };
+              pdfMake.createPdf(docDefinition).download("Table.pdf");
+          }
+      });
+  }
+  </script>  -->
+
+  <script>
+  
+   document.getElementById('topdf').onclick = function() {
+
+     var rowCount = $("#salestable td").closest("tr").length;
+
+     if(rowCount>0){
+
+       var element = document.getElementById('salestable2');
+     var date = new Date().toISOString().slice(0,19);
+     var opt = {
+       margin:     1,
+       filename: 'Salesreport' +date + '.pdf',
+       image: { type: 'jpeg', quality: 0.98},
+       html2canvas: { scale: 2},
+       jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait'}
+ 
+     }
+
+     
+     html2pdf(element, opt)
+
+     }else{
+       Swal.fire({
+         icon: 'error',
+         title: 'Oops...',
+         text: 'No data in the table!'
+       })
+     }
+
+ 
+   };
+
+
+   function csvBtn(url,e){
+
+     var rowCount = $("#salestable td").closest("tr").length;
+
+     if(rowCount>0){
+       location.href=url;
+     }else{
+       e.preventDefault()
+       Swal.fire({
+         icon: 'error',
+         title: 'Oops...',
+         text: 'No data in the table!'
+       })
+     }
+     
+   }
+
+
+ </script>
+
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+
+
+<script type="text/javascript">
+  document.getElementById('topdf').onclick = function () {
+      var element = document.getElementById('salestable');
+      html2pdf(element, {
+          margin: 10,
+          filename: 'SalesReport.pdf',
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2, logging: true, dpi: 192, letterRendering: true },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      });
+  };
+</script> 
+
+
+
+
+<script>
+    $('input[name="dates"]').daterangepicker({
+      maxDate: moment(),
+      ignoreReadonly: true,
+      format:'dd/mm/yyyy',
+      allowInputToggle: true,
+      defaultDate: false,
+      useCurrent: false
+    }
+  );
+</script>
+
+
+
+{% endblock %}
+
+</div>
+</div>
+{% include 'admin/includes/admin-footer.html' %}
+
+
+</div>
+
+</div>
+
+
+
+<script src="{% static 'assets/vendor/bootstrap/js/bootstrap.bundle.js' %}"></script>
+
+
+
+
+
+</body>
+
+</html>

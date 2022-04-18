@@ -16,6 +16,8 @@ from store.forms import ProductForm, ProductGalleryForm
 from django.utils.text import slugify
 from store.models import Product, ProductGallery 
 from django.db.models import Count
+import xlwt
+import datetime
 
 
 
@@ -334,57 +336,147 @@ def update_order_status(request, order_number):
                 }
     return render(request, 'admin/orders/update_order_status.html',context)
 
-# # charts
-# def doughnut(request):
-#     return render(request, 'admin/admin-home.html')
 
-def sales_report(request):    
-    if request.method == "POST":        
-        from_date = request.POST["from_date"]
-        to_date = request.POST["to_date"]
-        orders = Order.objects.filter(created_at__range=(from_date, to_date))
+
+# def sales_report(request):    
+#     if request.method == "POST":        
+#         from_date = request.POST["from_date"]
+#         to_date = request.POST["to_date"]
+#         orders = Order.objects.filter(created_at__range=(from_date, to_date))
         
-        sales = Order.objects.all()
+#         sales = Order.objects.all()
 
-        total_sales_amount=0
-        for total in sales:
-            total_sales_amount +=  total.nett_paid
-        print(total_sales_amount,'u777777777777777777777777777')
+#         total_sales_amount=0
+#         for total in sales:
+#             total_sales_amount +=  total.nett_paid
+#         print(total_sales_amount,'u777777777777777777777777777')
 
-        context = {
-        'orders':orders,
-        'total_sales_amount':total_sales_amount ,         
-        }
-        return render(request,'admin/orders/sales_report.html',context)
+#         context = {
+#         'orders':orders,
+#         'total_sales_amount':total_sales_amount ,         
+#         }
+#         return render(request,'admin/orders/sales_report.html',context)
     
-    else:
-        orders = Order.objects.all().order_by('-order_number')
-        total_sales_amount=0
-        for total in sales:
-            total_sales_amount +=  total.nett_paid
-        print(total_sales_amount,'u777777777777777777777777777')
-        context = {
-            'orders':orders,      
-            'total_sales_amount':total_sales_amount ,         
-        }
-        return render(request,'admin/orders/sales_report.html',context)
+#     else:
+#         orders = Order.objects.all().order_by('-order_number')
+#         total_sales_amount=0
+#         for total in sales:
+#             total_sales_amount +=  total.nett_paid
+#         print(total_sales_amount,'u777777777777777777777777777')
+#         context = {
+#             'orders':orders,      
+#             'total_sales_amount':total_sales_amount ,         
+#         }
+#         return render(request,'admin/orders/sales_report.html',context)
 
 
 
+# def export_csv(request):
+#     order_data = Order.objects.all()
+#     response = HttpResponse(content_type='text/csv')
+#     response['Content-Disposition'] = 'attachment; filename=GreatKart_Sales_Report'+'.csv'
+#     writer = csv.writer(response)   
+#     writer.writerow(['Customer Name', 'Order No', 'Order Date', 'City','State','Order Amount','Status'])
+#     for data in order_data:
+#         writer.writerow([data.full_name, data.order_number, data.created_at,data.city, data.state,data.order_total,data.status])
+#     return response
+
+
+# @never_cache
+# @login_required(login_url='/iamadmin/')
+def adminsale(request):
+    page = 'salesreport'
+    global order_data
+    order_data = Order.objects.filter(is_ordered=True)
+    yr = []
+    ag = 2000
+    months = ['January', 'February', 'March','April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+    for i in range(0,51):
+        yr.append(ag + i)
+    if request.method == 'POST':
+        datestr = request.POST.get('dates')
+            #start date
+        mo = datestr[:2]
+        da = datestr[3:5]
+        ye = datestr[6:10]
+        #enddate
+        mo1 = datestr[13:15]
+        da1 = datestr[16:18]
+        ye1 = datestr[19:]
+        from_date = ye+'-'+mo+'-'+da
+        to_date = ye1+'-'+mo1+'-'+da1
+        
+        year = request.POST.get('year')
+        month = request.POST.get('month')
+     
+        print(from_date)
+        if  month != '' :
+            # order_data = OrderProduct.objects.filter(order__date_order__month=m).filter(order__payments__status='Completed').order_by('order__date_order')
+            order_data = Order.objects.filter(created_at__month=month).filter(is_ordered=True).order_by('created_at')
+        elif  year != '' :
+            order_data = Order.objects.filter(created_at__year=year).filter(is_ordered=True).order_by('created_at')
+        elif from_date != '' and to_date != '' :
+            # order_data = OrderProduct.objects.filter(order__date_order__range=[from_date,to_date]).filter(order__payments__status='Completed').order_by('order__date_order')
+            order_data = Order.objects.filter(created_at__range=(from_date,to_date)).filter(is_ordered=True).order_by('created_at')
+    print('this is order data',order_data)
+
+    context = {'order_data': order_data, 'years': yr,'page': page,'months':months}
+    return render(request,'admin/orders/sales_report2.html', context)
+
+
+
+
+# @never_cache
 def export_csv(request):
-    order_data = Order.objects.all()
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename=GreatKart_Sales_Report'+'.csv'
+    response['Content-Disposition'] = 'attachment; filename=SalesReport'+str(datetime.datetime.now())+'.csv'
     writer = csv.writer(response)   
-    writer.writerow(['Customer Name', 'Order No', 'Order Date', 'City','State','Order Amount','Status'])
+    writer.writerow(['User Id','Name','Number Of Products','Order Date','Amount','Payment Type'])
+    print('here is the error')
+    # order_data = OrderItem.objects.filter(order_payments_status='Completed')
     for data in order_data:
-        writer.writerow([data.full_name, data.order_number, data.created_at,data.city, data.state,data.order_total,data.status])
+        writer.writerow([data.order.user.id, data.order.user, data.order.get_cart_items, data.order.date_order,data.order.payments.total_amount , data.order.payments.payment_method])
+    return response
+
+
+
+# @never_cache
+def export_excel(request):
+
+    response = HttpResponse(content_type='application/ms-excel')
+    response['Content-Disposition'] = 'attachment; filename=SalesReport'+str(datetime.datetime.now())+'.xls'
+    wb = xlwt.Workbook(encoding='utf-8')
+    ws = wb.add_sheet('Sales Report')
+    row_num = 0
+    font_style = xlwt.XFStyle()
+    font_style.font.bold = True
+    columns = ['User Id','Name','Order Date','Amount','Payment Type']
+    order_data = Order.objects.filter(is_ordered=True)
+
+    for col_num in range(len(columns)):
+        ws.write(row_num,col_num,columns[col_num],font_style)
+
+    font_style = xlwt.XFStyle()
+
+    rows = order_data.values_list(
+        # 'id','order_customer','order_date','payment_total_amount','payment_payment_method'
+        # 'id','user__username','date_order','order_status','status'
+        'id','user__username','created_at','order__status','status'
+    )
+    
+
+    for row in rows:
+        row_num = row_num + 1
+
+        for col_num in range(len(columns)):
+             ws.write(row_num,col_num,str(row[col_num]),font_style)
+    wb.save(response)
+
     return response
     
 
 
-def trial(request):
-    return render(request,'admin/Trial/Cropper.html')
+
 
 
 def admin_offers(request):

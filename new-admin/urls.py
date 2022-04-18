@@ -34,13 +34,12 @@ urlpatterns = [
     path('cancel_order_admin/<int:id>/',views.cancel_order_admin,name='cancel_order_admin'),
     path('update_order_status/<int:order_number>',views.update_order_status, name='update_order_status'),
 
-    # trail
-    path('trial',views.trial, name='trail'),
 
     #sales report
-    path('sales_report/',views.sales_report, name = 'sales_report'),
-    path('export_csv/',views.export_csv,name="export_csv"),
-
+    # path('sales_report/',views.sales_report, name = 'sales_report'),
+    # path('export_csv/',views.export_csv,name="export_csv"),
+    path('adminsale',views.adminsale,name='adminsale'),
+    path('export_excel',views.export_excel,name='export_excel'),
     
 
 
@@ -64,7 +63,7 @@ urlpatterns = [
     path('block_cat_offer/',views.block_cat_offer, name = 'block_cat_offer'),
     path('delete_cat_offer/',views.delete_cat_offer, name = 'delete_cat_offer'),
 
-    # # charts
+    #charts
     # path('doughnut/',views.doughnut,name='doughnut'),
 
 
