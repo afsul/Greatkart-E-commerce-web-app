@@ -427,7 +427,14 @@ def adminsale(request):
             order_data = Order.objects.filter(created_at__range=(from_date,to_date)).filter(is_ordered=True).order_by('created_at')
     print('this is order data',order_data)
 
-    context = {'order_data': order_data, 'years': yr,'page': page,'months':months}
+
+    #Total sales
+    total_sales_amount=0
+    sales = Order.objects.filter(is_ordered = True)
+    for total in sales:
+        total_sales_amount += total.nett_paid
+    print(total_sales_amount,"This is total sales *******************************888888")
+    context = {'order_data': order_data, 'years': yr,'page': page,'months':months, 'total_sales_amount':total_sales_amount}
     return render(request,'admin/orders/sales_report2.html', context)
 
 
